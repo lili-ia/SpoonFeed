@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpoonFeed.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpoonFeed.Persistence", "SpoonFeed.Persistence\SpoonFeed.Persistence.csproj", "{F2336C4A-B9AF-4AD8-B23C-09A74231A8A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpoonFeed.Application", "SpoonFeed.Application\SpoonFeed.Application.csproj", "{CFB86620-7A54-4199-9799-5B1B1A7969EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{F2336C4A-B9AF-4AD8-B23C-09A74231A8A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2336C4A-B9AF-4AD8-B23C-09A74231A8A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2336C4A-B9AF-4AD8-B23C-09A74231A8A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFB86620-7A54-4199-9799-5B1B1A7969EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFB86620-7A54-4199-9799-5B1B1A7969EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFB86620-7A54-4199-9799-5B1B1A7969EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFB86620-7A54-4199-9799-5B1B1A7969EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
