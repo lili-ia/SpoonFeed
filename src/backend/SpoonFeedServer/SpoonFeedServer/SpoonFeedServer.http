@@ -1,0 +1,6 @@
+@SpoonFeedServer_HostAddress = http://localhost:5167
+
+GET {{SpoonFeedServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
