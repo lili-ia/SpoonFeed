@@ -15,6 +15,7 @@ public class MenuItem : BaseEntity
     /// </summary>
     [Required(ErrorMessage = "Name is required.")]
     [MinLength(2, ErrorMessage = "The name of menu item should be at least 2 characters long.")]
+    [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     public string Name { get; set; } = string.Empty;
     
     /// <summary>
