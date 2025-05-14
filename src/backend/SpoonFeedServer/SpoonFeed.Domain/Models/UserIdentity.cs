@@ -12,7 +12,7 @@ public abstract class UserIdentity : BaseEntity
     /// Allows sending emails to users.
     /// </summary>
     [EmailAddress]
-    [Required]
+    [Required(ErrorMessage = "Email is required.")]
     public string Email { get; set; } = string.Empty;
     
     /// <summary>
@@ -37,7 +37,7 @@ public abstract class UserIdentity : BaseEntity
     /// </summary>
     [MinLength(10)]
     [MaxLength(255)]
-    [Required]
+    [Required(ErrorMessage = "Password is required.")]
     public string PasswordHash { get; set; } = string.Empty;
     
     /// <summary>
@@ -45,6 +45,6 @@ public abstract class UserIdentity : BaseEntity
     /// Required by all the users for proper business logic. 
     /// </summary>
     [MaxLength(20)]
-    [Required]
+    [Required(ErrorMessage = "PhoneNumber is required.")]
     public string PhoneNumber { get; set; } = string.Empty;
 }
