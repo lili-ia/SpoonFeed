@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using SpoonFeed.Domain.Enums;
-using SpoonFeed.Domain.Owned;
 
 namespace SpoonFeed.Domain.Models;
 
