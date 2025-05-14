@@ -5,7 +5,7 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents user's credentials
 /// </summary>
-public abstract class UserIdentity : BaseEntity
+public class UserIdentity : BaseEntity
 {
     /// <summary>
     /// Represent the user's email.
