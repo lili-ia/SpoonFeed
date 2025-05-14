@@ -71,6 +71,10 @@ public class MenuItem : BaseEntity
     [Required(ErrorMessage = "ImageId is required.")]
     public Guid ImageId { get; set; }
 
+    /// <summary>
+    /// Represents the image of the menu item.
+    /// </summary>
+    [Required(ErrorMessage = "Image is required.")]
     public virtual Image Image { get; set; } = null!;
 
     public virtual IList<Discount> Discounts { get; set; } = [];
