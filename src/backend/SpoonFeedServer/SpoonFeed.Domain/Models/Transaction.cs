@@ -1,26 +1,65 @@
+using System.ComponentModel.DataAnnotations;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
 
+/// <summary>
+/// Represents Stripe-related entity.
+/// </summary>
 public class Transaction : BaseEntity
 {
-    public string Token { get; set; }
+    private const TransactionStatus DefaultStatus = TransactionStatus.Pending;
+    /// <summary>
+    /// Stripe PaymentIntent ID (e.g., "pi_1234abc...").
+    /// </summary>
+    [Required(ErrorMessage = "PaymentIntentId is required.")]
+    public string PaymentIntentId { get; set; } = string.Empty;
     
-    public double Amount { get; set; }
+    /// <summary>
+    /// The total amount charged, in the smallest unit of the currency (e.g., cents).
+    /// </summary>
+    [Required(ErrorMessage = "Amount is required.")]
+    [Range(0, long.MaxValue, ErrorMessage = "Amount cannot be negative.")]
+    public long Amount { get; set; }
     
+    [Required(ErrorMessage = "CurrencyId is required.")]
     public Guid CurrencyId { get; set; }
     
-    public virtual Currency Currency { get; set; }
+    /// <summary>
+    /// Represents the currency used for the transaction.
+    /// </summary>
+    public virtual Currency Currency { get; set; } = null!;
 
-    public TransactionStatus TransactionStatus { get; set; }
-    
-    public string PaymentMethod { get; set; }
+    /// <summary>
+    /// Represents the current status of the transaction.
+    /// </summary>
+    [Required(ErrorMessage = "Status is required.")]
+    public TransactionStatus Status { get; set; } = DefaultStatus;
 
+    /// <summary>
+    /// Represents the receiver and recipient of the transaction.
+    /// </summary>
+    [Required(ErrorMessage = "TransactionType is required.")]
     public TransactionType TransactionType { get; set; }
     
-    public DateTime CreatedAt { get; set; }
+    /// <summary>
+    /// Represents the timestamp when the transaction was created.
+    /// Set by the database.
+    /// </summary>
+    [Required(ErrorMessage = "OpenedAt is required.")]
+    public DateTime OpenedAt { get; set; }
     
+    /// <summary>
+    /// Represents the timestamp when the transaction was modified.
+    /// Set by the database.
+    /// </summary>
+    [Required(ErrorMessage = "UpdatedAt is required.")]
     public DateTime UpdatedAt { get; set; }
+    
+    /// <summary>
+    /// Represents the timestamp when the transaction was closed.
+    /// </summary>
+    public DateTime? ClosedAt { get; set; }
     
     public Guid? CustomerId { get; set; }
     
