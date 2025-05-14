@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace SpoonFeed.Domain.Models;
+namespace SpoonFeed.Domain.Owned;
 
 /// <summary>
 /// Represents a range of working hours.
