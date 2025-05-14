@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
@@ -6,10 +7,18 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents the food chain's account created by its manager.
 /// </summary>
-public class FoodChain : UserIdentity
+public class FoodChain
 {
     private const FoodChainCategory DefaultCategory = FoodChainCategory.None;
     private const FoodChainStatus DefaultStatus = FoodChainStatus.PendingDocuments;
+    
+    [Key, ForeignKey("UserIdentity")]
+    public Guid UserIdentityId { get; set; }
+    
+    /// <summary>
+    /// Represents base user
+    /// </summary>
+    public UserIdentity UserIdentity { get; set; }
     
     /// <summary>
     /// Represents the category of the food chain.

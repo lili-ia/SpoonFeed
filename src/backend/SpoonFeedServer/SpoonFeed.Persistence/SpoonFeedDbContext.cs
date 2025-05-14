@@ -28,10 +28,14 @@ public class SpoonFeedDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // modelBuilder.Entity<Courier>(e =>
-        // {
-        //     
-        // });
+        modelBuilder.Entity<Courier>(e =>
+        {
+            e.HasKey(c => c.UserIdentityId);
+
+            e.HasOne(c => c.UserIdentity)
+                .WithOne()
+                .HasForeignKey<Courier>(c => c.UserIdentityId);
+        });
 
         modelBuilder.Entity<CourierReview>(e =>
         {
@@ -52,6 +56,12 @@ public class SpoonFeedDbContext : DbContext
 
         modelBuilder.Entity<Customer>(e =>
         {
+            e.HasKey(c => c.UserIdentityId);
+
+            e.HasOne(c => c.UserIdentity)
+                .WithOne()
+                .HasForeignKey<Customer>(c => c.UserIdentityId);
+            
             e.Property(c => c.BirthDate)
                 .HasConversion(new NullableDateOnlyConverter());
         });
@@ -65,6 +75,12 @@ public class SpoonFeedDbContext : DbContext
 
         modelBuilder.Entity<FoodChain>(e =>
         {
+            e.HasKey(fc => fc.UserIdentityId);
+
+            e.HasOne(fc => fc.UserIdentity)
+                .WithOne()
+                .HasForeignKey<FoodChain>(fc => fc.UserIdentityId);
+            
             e.HasOne(fc => fc.Image)
                 .WithMany()
                 .HasForeignKey(fc => fc.ImageId);
@@ -72,6 +88,12 @@ public class SpoonFeedDbContext : DbContext
 
         modelBuilder.Entity<FoodFacility>(e =>
         {
+            e.HasKey(ff => ff.UserIdentityId);
+
+            e.HasOne(ff => ff.UserIdentity)
+                .WithOne()
+                .HasForeignKey<FoodFacility>(ff => ff.UserIdentityId);
+            
             e.HasOne(ff => ff.FoodChain)
                 .WithMany(fc => fc.Facilities)
                 .HasForeignKey(ff => ff.FoodChainId);

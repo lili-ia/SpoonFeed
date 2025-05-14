@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using SpoonFeed.Domain.Enums;
 using SpoonFeed.Domain.Owned;
 
@@ -7,9 +8,17 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents specific food facility of the food chain.
 /// </summary>
-public class FoodFacility : UserIdentity
+public class FoodFacility
 {
     private const FoodFacilityStatus DefaultStatus = FoodFacilityStatus.Offline;
+    
+    [Key, ForeignKey("UserIdentity")]
+    public Guid UserIdentityId { get; set; }
+    
+    /// <summary>
+    /// Represents base user
+    /// </summary>
+    public UserIdentity UserIdentity { get; set; }
     
     /// <summary>
     /// Represents the food facility's full address.

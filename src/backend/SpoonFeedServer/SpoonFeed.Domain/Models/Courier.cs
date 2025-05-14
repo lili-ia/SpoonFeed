@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
@@ -6,11 +7,19 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents the courier and his account.
 /// </summary>
-public class Courier : UserIdentity
+public class Courier
 {
     private const float DefaultDeliveryRange = 0.5f; 
     private const TransportType DefaultTransportType = TransportType.None;
     private const CourierStatus DefaultCourierStatus = CourierStatus.Offline;
+    
+    [Key, ForeignKey("UserIdentity")]
+    public Guid UserIdentityId { get; set; }
+    
+    /// <summary>
+    /// Represents base user
+    /// </summary>
+    public UserIdentity UserIdentity { get; set; }
     
     /// <summary>
     /// Represents the courier's type of transport.

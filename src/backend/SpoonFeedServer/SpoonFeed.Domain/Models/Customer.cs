@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
@@ -6,10 +7,18 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents the customer's profile.
 /// </summary>
-public class Customer : UserIdentity
+public class Customer 
 {
     private const int DefaultBonusBalance = 0;
     private const CustomerStatus DefaultCustomerStatus = CustomerStatus.Active;
+    
+    [Key, ForeignKey("UserIdentity")]
+    public Guid UserIdentityId { get; set; }
+    
+    /// <summary>
+    /// Represents base user
+    /// </summary>
+    public UserIdentity UserIdentity { get; set; }
     
     /// <summary>
     /// Represents customer's address.
