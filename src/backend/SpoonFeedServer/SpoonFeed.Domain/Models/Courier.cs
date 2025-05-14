@@ -9,12 +9,14 @@ namespace SpoonFeed.Domain.Models;
 public class Courier : UserIdentity
 {
     private const float DefaultDeliveryRange = 0.5f; 
+    private const TransportType DefaultTransportType = TransportType.None;
+    private const CourierStatus DefaultCourierStatus = CourierStatus.Offline;
     
     /// <summary>
     /// Represents the courier's type of transport.
     /// Affects the max order weight.
     /// </summary>
-    public TransportType TransportType { get; set; } = TransportType.None;
+    public TransportType TransportType { get; set; } = DefaultTransportType;
 
     /// <summary>
     /// Represents moneys the courier has earned by completing orders and which he can withdraw.
@@ -29,7 +31,7 @@ public class Courier : UserIdentity
     /// Set by system's events, like start accepting, accept, get food, etc.
     /// </summary>
     [Required(ErrorMessage = "CourierStatus is required.")]
-    public CourierStatus CourierStatus { get; set; } = CourierStatus.Offline;
+    public CourierStatus CourierStatus { get; set; } = DefaultCourierStatus;
 
     /// <summary>
     /// Represents the distance in kilometers at which the courier can accept orders.
