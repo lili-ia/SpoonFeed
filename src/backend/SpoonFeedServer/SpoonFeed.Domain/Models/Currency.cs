@@ -8,7 +8,6 @@ public class Currency : BaseEntity
     [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     public string Name { get; set; }
     
-    // todo : unique 
     [StringLength(10, ErrorMessage = "Code cannot exceed 10 characters.")]
     public string Code { get; set; }
     

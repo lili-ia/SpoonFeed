@@ -21,4 +21,16 @@ public class Transaction : BaseEntity
     public DateTime CreatedAt { get; set; }
     
     public DateTime UpdatedAt { get; set; }
+    
+    public Guid? CustomerId { get; set; }
+    
+    public virtual Customer? Customer { get; set; }
+    
+    public Guid? FoodFacilityId { get; set; }
+    
+    public virtual FoodFacility? FoodFacility { get; set; }
+    
+    public Guid? CourierId { get; set; }
+    
+    public virtual Courier? Courier { get; set; }
 }

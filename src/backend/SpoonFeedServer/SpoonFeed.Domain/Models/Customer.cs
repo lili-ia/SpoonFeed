@@ -1,14 +1,16 @@
+using System.ComponentModel.DataAnnotations;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
 
 public class Customer : UserIdentity
 {
-    public string Address { get; set; }
+    [StringLength(100, ErrorMessage = "Address cannot exceed 100 characters.")]
+    public string? Address { get; set; }
     
     public DateOnly BirthDate { get; set; }
     
-    public int Bonuses { get; set; }
+    public int? Bonuses { get; set; }
     
     public virtual IList<Transaction> Transactions { get; set; }
     

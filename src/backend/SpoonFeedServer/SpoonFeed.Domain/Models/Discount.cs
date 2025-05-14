@@ -8,5 +8,5 @@ public class Discount : BaseEntity
     
     public DiscountType DiscountType { get; set; }
     
-    public DateTime InvalidAt { get; set; }
+    public DateTime? InvalidAt { get; set; }
 }

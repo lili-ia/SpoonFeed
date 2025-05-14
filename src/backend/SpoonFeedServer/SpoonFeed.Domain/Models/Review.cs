@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SpoonFeed.Domain.Models;
 
-public class Review : BaseEntity
+public abstract class Review : BaseEntity
 {
     [Required(ErrorMessage = "Content is required.")]
     [StringLength(1000, ErrorMessage = "Content must be less than 1000 characters.")]

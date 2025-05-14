@@ -10,11 +10,11 @@ public abstract class UserIdentity : BaseEntity
     
     [MinLength(3)]
     [MaxLength(30)]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
     
     [MinLength(3)]
     [MaxLength(30)]
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
     
     [MinLength(10)]
     [MaxLength(255)]
@@ -22,5 +22,5 @@ public abstract class UserIdentity : BaseEntity
     public string PasswordHash { get; set; }
     
     [MaxLength(20)]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 }

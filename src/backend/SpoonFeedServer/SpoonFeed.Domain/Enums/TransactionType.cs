@@ -2,9 +2,8 @@ namespace SpoonFeed.Domain.Enums;
 
 public enum TransactionType
 {
-    Payment,        
-    Refund,        
-    Transfer,       
-    Chargeback,     
-    Deposit         
+    Order, // customer -> foodfacility
+    Delivery, // customer -> courier
+    Refund, // foodfacility -> customer
+    Tip // customer -> courier
 }

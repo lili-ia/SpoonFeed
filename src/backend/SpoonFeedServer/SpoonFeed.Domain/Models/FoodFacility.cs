@@ -18,6 +18,9 @@ public class FoodFacility : BaseEntity
     
     public double AverageRating { get; set; } // todo : procedure
     
+    public Guid FoodChainId { get; set; }
+    
+    public virtual FoodChain FoodChain { get; set; }
     public virtual IList<MenuItem> MenuItems { get; set; }
     
     public virtual IList<Order> Orders { get; set; }
@@ -25,4 +28,6 @@ public class FoodFacility : BaseEntity
     public virtual IList<Transaction> Transactions { get; set; }
     
     public virtual IList<FoodFacilityReview> FoodFacilityReviews { get; set; }
+    
+    public virtual IList<MenuItemCategory> MenuItemCategories { get; set; }
 }
