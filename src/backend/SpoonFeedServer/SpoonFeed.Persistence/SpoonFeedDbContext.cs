@@ -7,6 +7,7 @@ namespace SpoonFeed.Persistence;
 public class SpoonFeedDbContext : DbContext
 {
     public DbSet<Courier> Couriers { get; set; }
+    public DbSet<UserIdentity> UserIdentities { get; set; }
     public DbSet<CourierReview> CourierReviews { get; set; }
     public DbSet<Currency> Currencies { get; set; }
     public DbSet<Customer> Customers { get; set; }
