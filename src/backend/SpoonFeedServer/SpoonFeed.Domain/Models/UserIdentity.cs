@@ -47,4 +47,6 @@ public abstract class UserIdentity : BaseEntity
     [MaxLength(20)]
     [Required(ErrorMessage = "PhoneNumber is required.")]
     public string PhoneNumber { get; set; } = string.Empty;
+    
+    public virtual IList<UserDocument> Documents { get; set; } = [];
 }
