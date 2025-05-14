@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpoonFeed.Domain.Models;
+using SpoonFeed.Persistence.Converters;
 
 namespace SpoonFeed.Persistence;
 
@@ -11,143 +12,157 @@ public class SpoonFeedDbContext : DbContext
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Discount> Discounts { get; set; }
     public DbSet<FoodChain> FoodChains { get; set; }
-    public DbSet<FoodChainManager> FoodChainManagers { get; set; }
     public DbSet<FoodFacility> FoodFacilities { get; set; }
-    public DbSet<FoodFacilityManager> FoodFacilityManagers { get; set; }
     public DbSet<FoodFacilityReview> FoodFacilityReviews { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<MenuItem> MenuItems { get; set; }
     public DbSet<MenuItemCategory> MenuItemCategories { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderPosition> OrderPositions { get; set; }
-    public DbSet<Review> Reviews { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
-    
+    public DbSet<UserDocument> UserDocuments { get; set; }
+
     public SpoonFeedDbContext(DbContextOptions<SpoonFeedDbContext> options) : base(options)
     {
-        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-         modelBuilder.Entity<Currency>()
-            .HasIndex(c => c.Code)
-            .IsUnique();
+        // modelBuilder.Entity<Courier>(e =>
+        // {
+        //     
+        // });
 
-        modelBuilder.Entity<MenuItem>()
-            .HasOne(mi => mi.Currency)
-            .WithMany()
-            .HasForeignKey(mi => mi.CurrencyId);
+        modelBuilder.Entity<CourierReview>(e =>
+        {
+            e.HasOne(cr => cr.Courier)
+                .WithMany(c => c.CourierReviews)
+                .HasForeignKey(cr => cr.CourierId);
 
-        modelBuilder.Entity<MenuItem>()
-            .HasOne(mi => mi.FoodFacility)
-            .WithMany(f => f.MenuItems)
-            .HasForeignKey(mi => mi.FooFoodFacilityId);
+            e.HasOne(cr => cr.Customer)
+                .WithMany()
+                .HasForeignKey(cr => cr.CustomerId);
+        });
 
-        modelBuilder.Entity<MenuItem>()
-            .HasOne(mi => mi.MenuItemCategory)
-            .WithMany(mc => mc.MenuItems)
-            .HasForeignKey(mi => mi.MenuItemCategoryId);
+        modelBuilder.Entity<Currency>(e =>
+        {
+            e.HasIndex(c => c.Code)
+                .IsUnique();
+        });
 
-        modelBuilder.Entity<MenuItem>()
-            .HasMany(mi => mi.Discounts)
-            .WithMany();
+        modelBuilder.Entity<Customer>(e =>
+        {
+            e.Property(c => c.BirthDate)
+                .HasConversion(new NullableDateOnlyConverter());
+        });
 
-        modelBuilder.Entity<Order>()
-            .HasOne(o => o.Customer)
-            .WithMany(c => c.Orders)
-            .HasForeignKey(o => o.CustomerId);
+        modelBuilder.Entity<Discount>(e =>
+        {
+            e.HasOne(d => d.MenuItem)
+                .WithMany(mi => mi.Discounts)
+                .HasForeignKey(d => d.MenuItemId);
+        });
 
-        modelBuilder.Entity<Order>()
-            .HasOne(o => o.Courier)
-            .WithMany(c => c.Orders)
-            .HasForeignKey(o => o.CourierId);
+        modelBuilder.Entity<FoodChain>(e =>
+        {
+            e.HasOne(fc => fc.Image)
+                .WithMany()
+                .HasForeignKey(fc => fc.ImageId);
+        });
 
-        modelBuilder.Entity<Order>()
-            .HasMany(o => o.OrderPositions)
-            .WithOne()
-            .HasForeignKey(op => op.Id);
-
-        modelBuilder.Entity<OrderPosition>()
-            .HasOne(op => op.MenuItem)
-            .WithMany()
-            .HasForeignKey(op => op.MenuItemId);
-
-        modelBuilder.Entity<Transaction>()
-            .HasOne(t => t.Currency)
-            .WithMany()
-            .HasForeignKey(t => t.CurrencyId);
-
-        modelBuilder.Entity<Customer>()
-            .HasMany(c => c.Transactions)
-            .WithOne()
-            .HasForeignKey(t => t.CustomerId);
-
-        modelBuilder.Entity<Customer>()
-            .HasMany(c => c.Reviews)
-            .WithOne(r => r.Customer)
-            .HasForeignKey(r => r.CustomerId);
-
-        modelBuilder.Entity<Courier>()
-            .HasMany(c => c.Transactions)
-            .WithOne()
-            .HasForeignKey(t => t.CourierId);
-
-        modelBuilder.Entity<Courier>()
-            .HasMany(c => c.CourierReviews)
-            .WithOne(r => r.Courier)
-            .HasForeignKey(r => r.CourierId);
+        modelBuilder.Entity<FoodFacility>(e =>
+        {
+            e.HasOne(ff => ff.FoodChain)
+                .WithMany(fc => fc.Facilities)
+                .HasForeignKey(ff => ff.FoodChainId);
+        });
         
-        modelBuilder.Entity<Order>()
-            .HasMany(f => f.OrderPositions)
-            .WithOne(o => o.Order)
-            .HasForeignKey(o => o.OrderId);
+        modelBuilder.Entity<FoodFacilityReview>(e =>
+        {
+            e.HasOne(fr => fr.FoodFacility)
+                .WithMany(ff => ff.FoodFacilityReviews)
+                .HasForeignKey(fr => fr.FoodFacilityId);
+
+            e.HasOne(fr => fr.Customer)
+                .WithMany()
+                .HasForeignKey(fr => fr.CustomerId);
+        });
+
+        // modelBuilder.Entity<Image>(e =>
+        // {
+        //
+        // });
         
-        modelBuilder.Entity<OrderPosition>()
-            .HasOne(op => op.MenuItem)
-            .WithMany()
-            .HasForeignKey(op => op.MenuItemId);
+        modelBuilder.Entity<MenuItem>(e =>
+        {
+            e.HasOne(mi => mi.Currency)
+                .WithMany()
+                .HasForeignKey(mi => mi.CurrencyId);
 
-        modelBuilder.Entity<FoodFacility>()
-            .HasMany(f => f.Transactions)
-            .WithOne()
-            .HasForeignKey(t => t.FoodFacilityId);
+            e.HasOne(mi => mi.FoodFacility)
+                .WithMany(f => f.MenuItems)
+                .HasForeignKey(mi => mi.FooFoodFacilityId);
 
-        modelBuilder.Entity<FoodFacility>()
-            .HasMany(f => f.FoodFacilityReviews)
-            .WithOne(r => r.FoodFacility)
-            .HasForeignKey(r => r.FoodFacilityId);
+            e.HasOne(mi => mi.MenuItemCategory)
+                .WithMany(mc => mc.MenuItems)
+                .HasForeignKey(mi => mi.MenuItemCategoryId);
 
-        modelBuilder.Entity<MenuItemCategory>()
-            .HasOne(mc => mc.FoodFacility)
-            .WithMany(f => f.MenuItemCategories)
-            .HasForeignKey(mc => mc.FoodFacilityId);
+            e.HasOne(mi => mi.Image)
+                .WithMany()
+                .HasForeignKey(mi => mi.ImageId);
+        });
 
-        modelBuilder.Entity<MenuItem>()
-            .HasOne(mi => mi.MenuItemCategory)
-            .WithMany(mc => mc.MenuItems)
-            .HasForeignKey(mi => mi.MenuItemCategoryId);
-        
-        modelBuilder.Entity<FoodChain>()
-            .HasMany(fc => fc.Facilities)
-            .WithOne()
-            .HasForeignKey(fc => fc.FoodChainId);
+        // modelBuilder.Entity<MenuItemCategory>(e =>
+        // {
+        //
+        // });
 
-        modelBuilder.Entity<FoodChain>()
-            .HasMany(fc => fc.Managers)
-            .WithOne(m => m.FoodChain)
-            .HasForeignKey(m => m.FoodChainId);
+        modelBuilder.Entity<Order>(e =>
+        {
+            e.HasOne(o => o.Customer)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId);
 
-        modelBuilder.Entity<FoodFacilityManager>()
-            .HasOne(m => m.FoodFacility)
-            .WithMany()
-            .HasForeignKey(m => m.FoodFacilityId);
+            e.HasOne(o => o.Courier)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CourierId);
+        });
 
-        modelBuilder.Entity<Customer>()
-            .Property(c => c.BirthDate)
-            .HasConversion(
-                d => d.ToDateTime(TimeOnly.MinValue),
-                d => DateOnly.FromDateTime(d)
-            );
+        modelBuilder.Entity<OrderPosition>(e =>
+        {
+            e.HasOne(op => op.Order)
+                .WithMany(o => o.OrderPositions)
+                .HasForeignKey(op => op.OrderId);
+
+            e.HasOne(op => op.MenuItem)
+                .WithMany()
+                .HasForeignKey(op => op.MenuItemId);
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.HasOne(t => t.Currency)
+                .WithMany()
+                .HasForeignKey(t => t.CurrencyId);
+
+            e.HasOne(t => t.Customer)
+                .WithMany(c => c.Transactions)
+                .HasForeignKey(t => t.CustomerId);
+
+            e.HasOne(t => t.Courier)
+                .WithMany(c => c.Transactions)
+                .HasForeignKey(t => t.CourierId);
+
+            e.HasOne(t => t.FoodFacility)
+                .WithMany(f => f.Transactions)
+                .HasForeignKey(t => t.FoodFacilityId);
+        });
+
+        modelBuilder.Entity<UserDocument>(e =>
+        {
+            e.HasOne(ud => ud.Owner)
+                .WithMany(ui => ui.Documents)
+                .HasForeignKey(ud => ud.OwnerId);
+        });
     }
 }
