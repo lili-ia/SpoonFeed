@@ -1,4 +1,4 @@
-package com.example.spoon_feed
+package com.example.courier_app
 
 import io.flutter.embedding.android.FlutterActivity
 
