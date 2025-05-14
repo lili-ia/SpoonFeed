@@ -18,12 +18,14 @@ public class Currency : BaseEntity
     /// <summary>
     /// Represents the standard currency code, like "UAH", "USD", etc.
     /// </summary>
+    [Required(ErrorMessage = "Code is required.")]
     [StringLength(10, ErrorMessage = "Code cannot exceed 10 characters.")]
     public string Code { get; set; } = string.Empty;
 
     /// <summary>
     /// Represents the symbol of the currency, such as "$", "NZ$", etc.
     /// </summary>
+    [Required(ErrorMessage = "Symbol is required.")]
     [StringLength(5, ErrorMessage = "Symbol cannot exceed 5 characters.")]
     public string Symbol { get; set; } = string.Empty;
 }
