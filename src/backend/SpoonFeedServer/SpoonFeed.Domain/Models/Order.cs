@@ -10,7 +10,6 @@ namespace SpoonFeed.Domain.Models;
 public class Order : BaseEntity
 {
     private const OrderStatus DefaultStatus = OrderStatus.Preparing;
-    private const OrderPaymentMethod DefaultPaymentMethod = OrderPaymentMethod.Cash;
     
     /// <summary>
     /// Represents the timestamp when the order submitted by user.
@@ -39,8 +38,16 @@ public class Order : BaseEntity
     [Required(ErrorMessage = "DeliveryAddress is required.")]
     public Address DeliveryAddress { get; set; } = null!;
 
-    [Required(ErrorMessage = "PaymentMethod is required")]
-    public OrderPaymentMethod PaymentMethod { get; set; } = DefaultPaymentMethod;
+    /// <summary>
+    /// Represents the type of order payment method.
+    /// </summary>
+    public OrderPaymentMethod? PaymentMethod { get; set; }
+    
+    /// <summary>
+    /// Represents the total cost of the order.
+    /// Calculated as the sum of total of order items.
+    /// </summary>
+    public double Total { get; set; }
     
     [Required(ErrorMessage = "CustomerId is required.")]
     public Guid CustomerId { get; set; }
