@@ -5,7 +5,7 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents customer's review on food facility.
 /// </summary>
-public class FoodFacilityReview : BaseEntity
+public class FoodFacilityReview : Review
 {
     /// <summary>
     /// Represents the food facility's score given by the customer. 
