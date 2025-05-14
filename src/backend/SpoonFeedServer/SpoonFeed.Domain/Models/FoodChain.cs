@@ -3,31 +3,38 @@ using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
 
-public class FoodChain : BaseEntity
+/// <summary>
+/// Represents the food chain's account created by its manager.
+/// </summary>
+public class FoodChain : UserIdentity
 {
-    [MaxLength(100)]
-    public string Name { get; set; }
+    private const FoodChainCategory DefaultCategory = FoodChainCategory.None;
+    private const FoodChainStatus DefaultStatus = FoodChainStatus.PendingDocuments;
     
-    [EmailAddress]
-    [Required]
-    public string Email { get; set; }
-    
-    [MaxLength(20)]
-    public string PhoneNumber { get; set; }
-    
-    [MinLength(10)]
-    [MaxLength(255)]
-    [Required]
-    public string PasswordHash { get; set; }
-    public virtual IList<FoodFacility> Facilities { get; set; }
-    
-    public virtual IList<FoodChainManager> Managers { get; set; }
+    /// <summary>
+    /// Represents the category of the food chain.
+    /// </summary>
+    [Required(ErrorMessage = "Category is required.")]
+    public FoodChainCategory Category { get; set; } = DefaultCategory;
 
-    public FoodChainCategory FoodChainCategory { get; set; }
+    /// <summary>
+    /// Represents the current state of the food chain account.
+    /// </summary>
+    [Required(ErrorMessage = "Status is required.")]
+    public FoodChainStatus Status { get; set; } = DefaultStatus;
     
-    public double AverageScore { get; set; }   
-    
+    /// <summary>
+    /// Represents overall average score.
+    /// Calculated as average of food facilities average scores.
+    /// </summary>
+    public double AverageScore { get; set; }
+
     public Guid? ImageId { get; set; }
     
+    /// <summary>
+    /// Represents the food chain's image on the platform.
+    /// </summary>
     public virtual Image? Image { get; set; }
+
+    public virtual IList<FoodFacility> Facilities { get; set; } = [];
 }

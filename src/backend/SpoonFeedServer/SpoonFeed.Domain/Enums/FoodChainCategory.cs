@@ -2,6 +2,7 @@ namespace SpoonFeed.Domain.Enums;
 
 public enum FoodChainCategory
 {
+    None,
     FastFood,
     Cafe,
     Restaurant,
