@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
-namespace SpoonFeed.Domain.Models;
+namespace SpoonFeed.Domain.Owned;
 
 /// <summary>
 /// Represents an image entity within the domain.
 /// </summary>
-public class Image : BaseEntity
+[Owned]
+public class Image
 {
     /// <summary>
     /// Represents the name of the image.

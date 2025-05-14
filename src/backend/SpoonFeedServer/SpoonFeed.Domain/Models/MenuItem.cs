@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using SpoonFeed.Domain.Enums;
+using SpoonFeed.Domain.Owned;
 
 namespace SpoonFeed.Domain.Models;
 
@@ -68,10 +69,7 @@ public class MenuItem : BaseEntity
     [Range(0, int.MaxValue, ErrorMessage = "Weight cannot be negative.")]
     public int Weight { get; set; }
     
-    [Required(ErrorMessage = "ImageId is required.")]
-    public Guid ImageId { get; set; }
-
-    public virtual Image Image { get; set; } = null!;
+    public virtual Image? Image { get; set; }
 
     public virtual IList<Discount> Discounts { get; set; } = [];
 }
