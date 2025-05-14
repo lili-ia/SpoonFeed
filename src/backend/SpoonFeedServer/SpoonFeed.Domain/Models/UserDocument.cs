@@ -31,12 +31,12 @@ public class UserDocument : BaseEntity
     public DateTime UpdatedAt { get; set; }
     
     [Required(ErrorMessage = "Owner is required.")]
-    public Guid Owner { get; set; }
+    public Guid OwnerId { get; set; }
     
     /// <summary>
     /// Represents the document's owner.
     /// </summary>
-    public UserIdentity UserIdentity { get; set; } = null!;
+    public UserIdentity Owner { get; set; } = null!;
 
     /// <summary>
     /// Represents the current status of document approval.

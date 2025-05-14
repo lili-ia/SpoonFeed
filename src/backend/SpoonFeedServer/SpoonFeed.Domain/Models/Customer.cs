@@ -28,7 +28,7 @@ public class Customer : UserIdentity
     /// Represents the customer's bonus balance.
     /// Used during the ordering process.
     /// </summary>
-    [Required(ErrorMessage = "Bonuses are required")]
+    [Required(ErrorMessage = "Bonuses are required.")]
     public int Bonuses { get; set; } = DefaultBonusBalance;
     
     public virtual IList<Transaction> Transactions { get; set; }
@@ -41,5 +41,6 @@ public class Customer : UserIdentity
     /// Represents the customer's current status in the system.
     /// Indicates whether the customer is active, inactive, or banned.
     /// </summary>
+    [Required(ErrorMessage = "Status is required.")]
     public CustomerStatus Status { get; set; } = DefaultCustomerStatus;
 }

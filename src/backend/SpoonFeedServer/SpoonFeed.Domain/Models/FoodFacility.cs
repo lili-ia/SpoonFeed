@@ -7,7 +7,7 @@ namespace SpoonFeed.Domain.Models;
 /// <summary>
 /// Represents specific food facility of the food chain.
 /// </summary>
-public class FoodFacility : BaseEntity
+public class FoodFacility : UserIdentity
 {
     private const FoodFacilityStatus DefaultStatus = FoodFacilityStatus.Offline;
     
@@ -27,7 +27,7 @@ public class FoodFacility : BaseEntity
     /// <summary>
     /// Represents a range of food facility's working hours.
     /// </summary>
-    [Required(ErrorMessage = "WorkinHours are required.")]
+    [Required(ErrorMessage = "WorkingHours are required.")]
     public WorkingHours WorkingHours { get; set; } = null!;
 
     /// <summary>
@@ -42,6 +42,7 @@ public class FoodFacility : BaseEntity
     /// </summary>
     public double AverageScore { get; set; }
     
+    [Required(ErrorMessage = "FoodChainId is required.")]
     public Guid FoodChainId { get; set; }
 
     /// <summary>
