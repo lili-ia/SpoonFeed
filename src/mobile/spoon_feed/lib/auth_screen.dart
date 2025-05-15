@@ -1,3 +1,5 @@
+import 'package:courier_app/courier_map.dart';
+import 'package:courier_app/deliver_screen.dart';
 import 'package:courier_app/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:courier_app/custom_text_field.dart';
@@ -46,10 +48,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   String? validate(String? input) {
-    if (input == null || input.isEmpty) {
-      return "This is a required field";
-    }
-    return null;
+    // if (input == null || input.isEmpty) {
+    //   return "This is a required field";
+    // }
+    // return null;
   }
 
   void submit() {
@@ -58,6 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
         return;
       }
       if (isSignIn) {
+        widget.changeScreen(DeliverScreen(changeScreen: widget.changeScreen));
       } else {
         widget.changeScreen(RegisterScreen(changeScreen: widget.changeScreen));
       }
@@ -72,43 +75,46 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Center(
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.all(30),
-              child: Image.asset('images/spoonfeed_logo.png'),
-            ),
-            Heading(titleText),
-            CustomTextField(validate, "Email", _emailController),
-            CustomTextField(
-              validate,
-              "Password",
-              _passwordController,
-              obscureText: true,
-            ),
-            CustomButton(submitText, submit),
-            SizedBox(height: 30),
-            SignInButton(Buttons.Google, onPressed: signInWithGoogle),
-            SizedBox(height: 6),
-            Text.rich(
-              TextSpan(
-                text: "$suggestionText ",
-                style: TextStyle(fontSize: 11),
-                children: [
-                  TextSpan(
-                    text: switchText,
-                    style: TextStyle(color: Colors.blue),
-                    recognizer:
-                        TapGestureRecognizer()
-                          ..onTap = () {
-                            switchState();
-                          },
-                  ),
-                ],
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 30),
+        child: Center(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.all(30),
+                child: Image.asset('images/spoonfeed_logo.png'),
               ),
-            ),
-          ],
+              Heading(titleText),
+              CustomTextField(validate, "Email", _emailController),
+              CustomTextField(
+                validate,
+                "Password",
+                _passwordController,
+                obscureText: true,
+              ),
+              CustomButton(submitText, submit),
+              SizedBox(height: 30),
+              SignInButton(Buttons.Google, onPressed: signInWithGoogle),
+              SizedBox(height: 6),
+              Text.rich(
+                TextSpan(
+                  text: "$suggestionText ",
+                  style: TextStyle(fontSize: 11),
+                  children: [
+                    TextSpan(
+                      text: switchText,
+                      style: TextStyle(color: Colors.blue),
+                      recognizer:
+                          TapGestureRecognizer()
+                            ..onTap = () {
+                              switchState();
+                            },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

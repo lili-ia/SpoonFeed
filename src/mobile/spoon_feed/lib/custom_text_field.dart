@@ -15,13 +15,14 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+      margin: EdgeInsets.symmetric(vertical: 5),
       child: TextFormField(
         obscureText: obscureText,
         validator: validate,
         controller: _controller,
         decoration: InputDecoration(
           labelText: text,
+          labelStyle: TextStyle(fontSize: 16, color: Colors.black54),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(
