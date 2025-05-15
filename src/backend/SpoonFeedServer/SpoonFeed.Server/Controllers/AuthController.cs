@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using SpoonFeed.Application.DTOs.Auth;
+using SpoonFeed.Application.Interfaces;
+using SpoonFeedServer.Extensions;
 
 namespace SpoonFeedServer.Controllers;
 
@@ -6,26 +9,42 @@ namespace SpoonFeedServer.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    public AuthController()
+    private readonly IAuthService _authService;
+    public AuthController(IAuthService authService)
     {
-        
+        _authService = authService;
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> Register()
+    public async Task<IActionResult> Register(RegisterUserRequest request, CancellationToken ct)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _authService.RegisterAsync(request, ct);
+
+        return result.ToActionResult();
     }
     
     [HttpPost("login")]
-    public async Task<IActionResult> Login()
+    public async Task<IActionResult> Login(LoginRequest request, CancellationToken ct)
     {
-        return Ok();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var result = await _authService.LoginAsync(request, ct);
+        
+        return result.ToActionResult();
     }
 
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken()
     {
-        return Ok();
+        // todo
+        throw new NotImplementedException();
     }
 }

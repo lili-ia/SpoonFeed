@@ -14,6 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\SpoonFeed.Application\SpoonFeed.Application.csproj" />
+      <ProjectReference Include="..\SpoonFeed.Infrastructure\SpoonFeed.Infrastructure.csproj" />
       <ProjectReference Include="..\SpoonFeed.Persistence\SpoonFeed.Persistence.csproj" />
     </ItemGroup>
 
