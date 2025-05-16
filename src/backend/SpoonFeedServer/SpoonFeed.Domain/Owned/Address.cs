@@ -25,10 +25,6 @@ public class Address
     [MaxLength(20)]
     public string PostalCode { get; set; }
 
-    [Required]
-    [MaxLength(100)]
-    public string Country { get; set; }
-
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 }

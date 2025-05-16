@@ -46,7 +46,7 @@ public class MenuItem : BaseEntity
     public virtual Currency Currency { get; set; } = null!;
     
     [Required]
-    public Guid FooFoodFacilityId { get; set; }
+    public Guid FoodFacilityId { get; set; }
 
     /// <summary>
     /// Represents the owner food facility.
