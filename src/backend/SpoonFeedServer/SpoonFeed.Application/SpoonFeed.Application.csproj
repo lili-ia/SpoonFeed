@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SpoonFeed.Domain\SpoonFeed.Domain.csproj" />
+      <ProjectReference Include="..\SpoonFeed.Persistence\SpoonFeed.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

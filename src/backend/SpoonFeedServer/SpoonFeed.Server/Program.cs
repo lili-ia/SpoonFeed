@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using SpoonFeed.Application.Interfaces;
+using SpoonFeed.Application.Services;
+using SpoonFeed.Infrastructure.Services;
 using SpoonFeed.Persistence;
+using SpoonFeedServer.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +12,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultDevelop
 builder.Services.AddDbContext<SpoonFeedDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
@@ -20,5 +30,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseLoggerMiddleware();
 
 app.Run();
