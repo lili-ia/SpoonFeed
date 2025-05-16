@@ -73,50 +73,59 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 30),
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(30),
-                child: Image.asset('images/spoonfeed_logo.png'),
-              ),
-              Heading(titleText),
-              CustomTextField(validate, "Email", _emailController),
-              CustomTextField(
-                validate,
-                "Password",
-                _passwordController,
-                obscureText: true,
-              ),
-              CustomButton(submitText, submit),
-              SizedBox(height: 30),
-              SignInButton(Buttons.Google, onPressed: signInWithGoogle),
-              SizedBox(height: 6),
-              Text.rich(
-                TextSpan(
-                  text: "$suggestionText ",
-                  style: TextStyle(fontSize: 11),
-                  children: [
-                    TextSpan(
-                      text: switchText,
-                      style: TextStyle(color: Colors.blue),
-                      recognizer:
-                          TapGestureRecognizer()
-                            ..onTap = () {
-                              switchState();
-                            },
-                    ),
-                  ],
+    return Column(
+      children: [
+        Expanded(
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 30),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.all(30),
+                        child: Image.asset('images/spoonfeed_logo.png'),
+                      ),
+                      Heading(titleText),
+                      CustomTextField(validate, "Email", _emailController),
+                      CustomTextField(
+                        validate,
+                        "Password",
+                        _passwordController,
+                        obscureText: true,
+                      ),
+                      SizedBox(height: 30),
+                      CustomButton(submitText, submit),
+                      SizedBox(height: 30),
+                      SignInButton(Buttons.Google, onPressed: signInWithGoogle),
+                      SizedBox(height: 6),
+                      Text.rich(
+                        TextSpan(
+                          text: "$suggestionText ",
+                          style: TextStyle(fontSize: 11),
+                          children: [
+                            TextSpan(
+                              text: switchText,
+                              style: TextStyle(color: Colors.blue),
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () {
+                                      switchState();
+                                    },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

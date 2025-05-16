@@ -56,73 +56,83 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 30),
-        child: Center(
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 15),
-                child: Image.asset('images/spoonfeed_logo.png'),
-              ),
-              Heading("Registration (second step)"),
-              SizedBox(
-                height: 300,
-                child: Scrollbar(
-                  thumbVisibility: true,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CustomTextField(validate, "Name", _nameController),
-                        CustomTextField(
-                          validate,
-                          "Phone number",
-                          _phoneController,
-                        ),
-                        UploadFileField(title: "Identity document:"),
-                        TextForm("City:"),
-                        SizedBox(height: 10),
-                        CustomDropdownMenu(
-                          values: cities,
-                          onSelected: onCitySelected,
-                        ),
-                        SizedBox(height: 10),
-                        VehicleTypeRadioListTile(
-                          values: vehicleTypes,
-                          onSelected: onVehicleTypeSelected,
-                        ),
-                      ],
+    return Column(
+      children: [
+        Expanded(
+          child: Form(
+            key: _formKey,
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 30),
+              child: Center(
+                child: Column(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 15),
+                      child: Image.asset('images/spoonfeed_logo.png'),
                     ),
-                  ),
+                    Heading("Registration (next step)"),
+                    SizedBox(
+                      height: 300,
+                      child: Scrollbar(
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomTextField(
+                                validate,
+                                "Name",
+                                _nameController,
+                              ),
+                              CustomTextField(
+                                validate,
+                                "Phone number",
+                                _phoneController,
+                              ),
+                              UploadFileField(title: "Identity document:"),
+                              TextForm("City:"),
+                              SizedBox(height: 10),
+                              CustomDropdownMenu(
+                                values: cities,
+                                onSelected: onCitySelected,
+                              ),
+                              SizedBox(height: 10),
+                              VehicleTypeRadioListTile(
+                                values: vehicleTypes,
+                                onSelected: onVehicleTypeSelected,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    CustomButton("Register!", signUp),
+                    SizedBox(height: 20),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.only(left: 6),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueGrey,
+                        ),
+                        onPressed: () {
+                          widget.changeScreen(
+                            AuthScreen(changeScreen: widget.changeScreen),
+                          );
+                        },
+                        child: CustomText("Back"),
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                  ],
                 ),
               ),
-
-              CustomButton("Register!", signUp),
-              SizedBox(height: 20),
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(left: 6),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey,
-                  ),
-                  onPressed: () {
-                    widget.changeScreen(
-                      AuthScreen(changeScreen: widget.changeScreen),
-                    );
-                  },
-                  child: CustomText("Back"),
-                ),
-              ),
-              SizedBox(height: 15),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

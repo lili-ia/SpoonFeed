@@ -12,7 +12,6 @@ class CustomButton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(height: 30),
           ElevatedButton(
             onPressed: onClick,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.deepOrange),
