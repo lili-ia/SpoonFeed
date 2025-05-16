@@ -1,4 +1,3 @@
-import 'package:courier_app/courier_map.dart';
 import 'package:courier_app/deliver_screen.dart';
 import 'package:courier_app/register_screen.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +50,7 @@ class _AuthScreenState extends State<AuthScreen> {
     // if (input == null || input.isEmpty) {
     //   return "This is a required field";
     // }
-    // return null;
+    return null;
   }
 
   void submit() {
@@ -69,6 +68,12 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void signInWithGoogle() async {
     GoogleSignInAccount? user = await _googleSignIn.signIn();
+    if(user != null) {
+      print("Login successful: Email: ${user.email}, Username: ${user.displayName}");
+    }
+    else{
+      print("Unsuccessful login.");
+    }
   }
 
   @override

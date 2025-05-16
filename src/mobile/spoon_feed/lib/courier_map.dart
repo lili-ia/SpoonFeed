@@ -49,10 +49,18 @@ class _CourierMapState extends State<CourierMap> {
   LatLng? _currentPosition;
   Timer? timer;
   Set<Marker> markers = {};
+  
   @override
   void initState() {
     super.initState();
     updateState();
+  }
+  
+  @override
+  void dispose() {
+    timer?.cancel();
+    _googleMapController?.dispose();
+    super.dispose();
   }
 
   double getColor(Color color) {
@@ -65,78 +73,108 @@ class _CourierMapState extends State<CourierMap> {
         return BitmapDescriptor.hueGreen;
       case Colors.red:
         return BitmapDescriptor.hueRed;
+      default:
+        return BitmapDescriptor.hueAzure;
     }
-    return -1;
   }
 
   void createMarkers() {
-    if (markers.isEmpty) {
+    markers.clear(); 
+    
+    if (widget.activeOrder.active && 
+        widget.activeOrder.restaurants != null &&
+        widget.activeOrder.customer != null) {
+      
       for (var i = 0; i < widget.activeOrder.restaurants!.length; i++) {
+        //if (widget.activeOrder.restaurants![i].position != null &&
+           // widget.activeOrder.restaurants![i].color != null) {
+          markers.add(
+            Marker(
+              markerId: MarkerId("restaurant_$i"),
+              position: widget.activeOrder.restaurants![i].position,
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                getColor(widget.activeOrder.restaurants![i].color!),
+              ),
+            ),
+          );
+        //}
+      }
+      
+      //if (widget.activeOrder.customer!.position != null) {
         markers.add(
           Marker(
-            markerId: MarkerId(i.toString()),
-            position: widget.activeOrder.restaurants![i].position,
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              getColor(widget.activeOrder.restaurants![i].color!),
-            ),
+            markerId: const MarkerId("customer"),
+            position: widget.activeOrder.customer!.position,
           ),
         );
-      }
-      markers.add(
-        Marker(
-          markerId: MarkerId("customer"),
-          position: widget.activeOrder.customer!.position,
-        ),
-      );
+      //}
     }
   }
 
   void updateState() {
-    timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-      final position = await getCurrentPosition();
-      if (position == null) {
-        print("error");
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (!mounted) {
+        timer.cancel();
         return;
       }
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
+      
+      try {
+        final position = await getCurrentPosition();
+        if (position == null) {
+          print("Error getting position");
+          return;
+        }
+        
+        if (!mounted) return;
+        
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
 
-        if (widget.activeOrder.active) {
-          createMarkers();
-          List<String> distancesToRestaurants = [];
-          for (var i = 0; i < widget.activeOrder.restaurants!.length; i++) {
-            var distToRestaurant =
+          if (widget.activeOrder.active &&
+              widget.activeOrder.restaurants != null &&
+              widget.activeOrder.customer != null) {
+              
+            createMarkers();
+            
+            List<String> distancesToRestaurants = [];
+            for (var i = 0; i < widget.activeOrder.restaurants!.length; i++) {
+              var distToRestaurant =
+                  Geolocator.distanceBetween(
+                    _currentPosition!.latitude,
+                    _currentPosition!.longitude,
+                    widget.activeOrder.restaurants![i].position.latitude,
+                    widget.activeOrder.restaurants![i].position.longitude,
+                  ).toString();
+              distancesToRestaurants.add(distToRestaurant);
+            }
+            
+            var distToCustomer =
                 Geolocator.distanceBetween(
                   _currentPosition!.latitude,
                   _currentPosition!.longitude,
-                  widget.activeOrder.restaurants![i].position.latitude,
-                  widget.activeOrder.restaurants![i].position.longitude,
+                  widget.activeOrder.customer!.position.latitude,
+                  widget.activeOrder.customer!.position.longitude,
                 ).toString();
-            distancesToRestaurants.add(distToRestaurant);
+            
+            if (mounted) {
+              widget.updateState(
+                _currentPosition!,
+                distancesToRestaurants,
+                distToCustomer,
+              );
+            }
           }
-          var distToCustomer =
-              Geolocator.distanceBetween(
-                _currentPosition!.latitude,
-                _currentPosition!.longitude,
-                widget.activeOrder.customer!.position.latitude,
-                widget.activeOrder.customer!.position.longitude,
-              ).toString();
-          setState(() {
-            widget.updateState(
-              _currentPosition!,
-              distancesToRestaurants,
-              distToCustomer,
-            );
-          });
-        }
-      });
+        });
+      } catch (e) {
+        print("Error in updateState: $e");
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return _currentPosition == null
-        ? Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator())
         : GoogleMap(
           myLocationEnabled: true,
           initialCameraPosition: CameraPosition(

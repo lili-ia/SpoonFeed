@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:courier_app/custom_text_field.dart';
 import 'package:courier_app/custom_button.dart';
 import 'package:courier_app/heading.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:courier_app/custom_dropdown_menu.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:courier_app/upload_file_field.dart';
