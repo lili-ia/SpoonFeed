@@ -49,7 +49,7 @@ public class FoodFacility
     /// Represents the average score of food facility reviews.
     /// Calculated by the database.
     /// </summary>
-    public double AverageScore { get; set; }
+    public double AverageScore { get; set; } 
     
     [Required(ErrorMessage = "FoodChainId is required.")]
     public Guid FoodChainId { get; set; }

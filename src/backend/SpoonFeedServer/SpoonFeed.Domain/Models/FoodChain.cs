@@ -31,12 +31,12 @@ public class FoodChain
     /// </summary>
     [Required(ErrorMessage = "Status is required.")]
     public FoodChainStatus Status { get; set; } = DefaultStatus;
-    
+
     /// <summary>
     /// Represents overall average score.
     /// Calculated as average of food facilities average scores.
     /// </summary>
-    public double AverageScore { get; set; }
+    public double AverageScore { get; set; } 
 
     public Guid? ImageId { get; set; }
     

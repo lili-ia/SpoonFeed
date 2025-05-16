@@ -35,7 +35,8 @@ public class SpoonFeedDbContext : DbContext
 
             e.HasOne(c => c.UserIdentity)
                 .WithOne()
-                .HasForeignKey<Courier>(c => c.UserIdentityId);
+                .HasForeignKey<Courier>(c => c.UserIdentityId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<CourierReview>(e =>
@@ -61,7 +62,8 @@ public class SpoonFeedDbContext : DbContext
 
             e.HasOne(c => c.UserIdentity)
                 .WithOne()
-                .HasForeignKey<Customer>(c => c.UserIdentityId);
+                .HasForeignKey<Customer>(c => c.UserIdentityId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             e.Property(c => c.BirthDate)
                 .HasConversion(new NullableDateOnlyConverter());
@@ -80,7 +82,8 @@ public class SpoonFeedDbContext : DbContext
 
             e.HasOne(fc => fc.UserIdentity)
                 .WithOne()
-                .HasForeignKey<FoodChain>(fc => fc.UserIdentityId);
+                .HasForeignKey<FoodChain>(fc => fc.UserIdentityId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             e.HasOne(fc => fc.Image)
                 .WithMany()
@@ -93,7 +96,8 @@ public class SpoonFeedDbContext : DbContext
 
             e.HasOne(ff => ff.UserIdentity)
                 .WithOne()
-                .HasForeignKey<FoodFacility>(ff => ff.UserIdentityId);
+                .HasForeignKey<FoodFacility>(ff => ff.UserIdentityId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             e.HasOne(ff => ff.FoodChain)
                 .WithMany(fc => fc.Facilities)

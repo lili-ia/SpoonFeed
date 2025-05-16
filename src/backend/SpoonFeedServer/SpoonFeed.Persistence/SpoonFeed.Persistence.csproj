@@ -13,10 +13,19 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.4.25258.110" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.0-preview.4.25258.110" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0-preview.4.25258.110" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SpoonFeed.Domain\SpoonFeed.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.Extensions.Configuration">
+        <HintPath>..\..\..\..\..\..\.nuget\packages\microsoft.aspnetcore.app.ref\8.0.15\ref\net8.0\Microsoft.Extensions.Configuration.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
