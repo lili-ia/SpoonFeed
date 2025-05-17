@@ -1,6 +1,7 @@
 import 'package:courier_app/auth_screen.dart';
 import 'package:courier_app/balance_screen.dart';
-import 'package:courier_app/models/active_order.dart';
+import 'package:courier_app/models/geolocation_status.dart';
+import 'package:courier_app/models/order.dart';
 import 'package:courier_app/order_list.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -24,54 +25,67 @@ class _DeliverScreenState extends State<DeliverScreen> {
   String? submitText = "Start";
   String currentState = "Inactive";
   bool _isMenuOpen = false;
-  
+  GeolocationStatus geolocationStatus = GeolocationStatus();
+
   static List<Color> restaurantColors = const [
     Colors.orange,
     Colors.blue,
     Colors.green,
     Colors.red,
   ];
-  ActiveOrder _activeOrder = ActiveOrder(restaurants: null, customer: null);
-  
+  Order _activeOrder = Order(restaurants: null, customer: null);
+
   @override
   void dispose() {
     futureAPI?.cancel();
     super.dispose();
   }
-  
+
   void changeState() {
     setState(() {
       if (currentState == "Inactive") {
+        if (!geolocationStatus.isLocationServiceEnable) {
+          showAlertDialog("To start working, geodata must be enabled");
+          return;
+        } else if (!geolocationStatus.locationPermission) {
+          showAlertDialog(
+            "To start working, geodata permission must be enabled",
+          );
+          return;
+        }
         currentState = "Search";
         submitText = "Cancel";
         searchingCustomer();
       } else if (currentState == "Search") {
-        currentState = "Inactive";
-        submitText = "Start";
-        cancelSearching();
+        return;
       }
     });
   }
 
   void updateState(
     LatLng courierPosition,
-    List<String> restaurantDistance,
-    String customerDistance,
+    List<double> restaurantDistance,
+    double customerDistance,
   ) {
-    if (!mounted || activeOrder.restaurants == null) return;
-    
+    if (!mounted || _activeOrder.restaurants == null) return;
+
     futureAPI = Timer(const Duration(microseconds: 1), () {});
-    
+
     setState(() {
       try {
-        for (var i = 0; i < activeOrder.restaurants!.length; i++) {
+        for (var i = 0; i < _activeOrder.restaurants!.length; i++) {
           if (i < restaurantDistance.length) {
-            activeOrder.restaurants![i].distance = restaurantDistance[i];
+            _activeOrder.restaurants![i].distance = restaurantDistance[i];
+          }
+
+          if (_activeOrder.restaurants![i].status != Status.pickedUp) {
+            // Change restaurant status from API
+            // activeOrder.restaurants![i].status = Status.expected;
           }
         }
-        
-        if (activeOrder.customer != null) {
-          activeOrder.customer!.distance = customerDistance;
+        _activeOrder.sort();
+        if (_activeOrder.customer != null) {
+          _activeOrder.customer!.distance = customerDistance;
         }
       } catch (e) {
         print("Error updating distances: $e");
@@ -81,19 +95,17 @@ class _DeliverScreenState extends State<DeliverScreen> {
 
   void searchingCustomer() {
     futureAPI?.cancel();
-    
-    futureAPI = Timer(const Duration(seconds: 1), () {
+
+    futureAPI = Timer(const Duration(seconds: 2), () {
       if (!mounted) return;
-      
+
       setState(() {
         currentState = "Accepting";
         submitText = "Accept";
-        
-        if (activeOrder.restaurants != null) {
-          _activeOrder = activeOrder;
+        _activeOrder = activeOrder;
+        if (_activeOrder.restaurants != null) {
           _activeOrder.active = true;
-          
-          for (var i = 0; i < activeOrder.restaurants!.length; i++) {
+          for (var i = 0; i < _activeOrder.restaurants!.length; i++) {
             if (i < restaurantColors.length) {
               _activeOrder.restaurants![i].color = restaurantColors[i];
             } else {
@@ -102,45 +114,71 @@ class _DeliverScreenState extends State<DeliverScreen> {
           }
         } else {
           print("Warning: No restaurants available in activeOrder");
-          _activeOrder = ActiveOrder(restaurants: [], customer: activeOrder.customer);
-          _activeOrder.active = true;
+          _activeOrder = Order(
+            restaurants: [],
+            customer: _activeOrder.customer,
+          );
+          _activeOrder.active = false;
         }
       });
     });
   }
 
-  void cancelSearching() {
+  void cancelOrder() {
+    if (currentState == "Inactive") {
+      return;
+    }
     futureAPI?.cancel();
     setState(() {
       currentState = "Inactive";
       submitText = "Start";
+      _activeOrder = Order(restaurants: null, customer: null);
     });
   }
-  
+
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
     });
   }
-  
+
   void _navigateToBalance() {
     setState(() {
       _isMenuOpen = false;
     });
-    
+
     futureAPI?.cancel();
-    
+
     widget.changeScreen(BalanceScreen(changeScreen: widget.changeScreen));
   }
-  
+
   void _navigateToMainPage() {
     setState(() {
       _isMenuOpen = false;
     });
-    
+
     futureAPI?.cancel();
-    
+
     widget.changeScreen(AuthScreen(changeScreen: widget.changeScreen));
+  }
+
+  void showAlertDialog(String text) {
+    showDialog(
+      context: context,
+      builder: (BuildContext) {
+        return AlertDialog(
+          title: Text(text),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Ok"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -154,6 +192,8 @@ class _DeliverScreenState extends State<DeliverScreen> {
               child: CourierMap(
                 activeOrder: _activeOrder,
                 updateState: updateState,
+                showAlertDialog: showAlertDialog,
+                geolocationStatus: geolocationStatus,
               ),
             ),
             Expanded(
@@ -165,10 +205,35 @@ class _DeliverScreenState extends State<DeliverScreen> {
                       ? OrderList(activeOrder: _activeOrder)
                       : const SizedBox.shrink(),
             ),
-            Expanded(flex: 1, child: CustomButton(submitText!, changeState)),
+            Expanded(
+              flex: 1,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: CustomButton(
+                      submitText!,
+                      changeState,
+                      margin: 10,
+                      opacity: currentState == "Search" ? 0.5 : 1,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: CustomButton(
+                      "Cancle",
+                      cancelOrder,
+                      margin: 10,
+                      opacity: currentState == "Inactive" ? 0.5 : 1,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
-        
+
         // Menu Button (top left)
         Positioned(
           top: 40,
@@ -192,7 +257,7 @@ class _DeliverScreenState extends State<DeliverScreen> {
             ),
           ),
         ),
-        
+
         // Menu Items (when menu is open)
         if (_isMenuOpen)
           Positioned(

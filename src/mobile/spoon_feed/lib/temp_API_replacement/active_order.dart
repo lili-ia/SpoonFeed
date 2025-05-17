@@ -1,8 +1,18 @@
-import 'package:courier_app/models/active_order.dart';
+import 'package:courier_app/models/order.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-var activeOrder = ActiveOrder(
+var activeOrder = Order(
   restaurants: [
+    Restaurant(
+      name: "MacDonalds",
+      address: "проспект Соборний, 76, Запоріжжя, Запорізька область, 69061",
+      position: LatLng(47.825817124660006, 35.166360163086985),
+      codeVerification: 4150,
+      dishes: [
+        DishInOrder(id: 2, name: "Тейсті джуніор", count: 1),
+        DishInOrder(id: 3, name: "Кока кола", count: 1),
+      ],
+    ),
     Restaurant(
       name: "Lavazza Coffee",
       address:
@@ -10,16 +20,6 @@ var activeOrder = ActiveOrder(
       position: LatLng(47.8187694, 35.1570175),
       codeVerification: 9485,
       dishes: [DishInOrder(id: 1, name: "Кава Американо", count: 2)],
-    ),
-    Restaurant(
-      name: "MacDonalds",
-      address: "проспект Соборний, 76, Запоріжжя, Запорізька область, 69061",
-      position: LatLng(47.81863892619486, 35.16352282611364),
-      codeVerification: 4150,
-      dishes: [
-        DishInOrder(id: 2, name: "Тейсті джуніор", count: 1),
-        DishInOrder(id: 3, name: "Кока кола", count: 1),
-      ],
     ),
   ],
   customer: MapLocation(
