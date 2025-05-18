@@ -128,7 +128,7 @@ public class SpoonFeedDbContext : DbContext
 
             e.HasOne(mi => mi.FoodFacility)
                 .WithMany(f => f.MenuItems)
-                .HasForeignKey(mi => mi.FooFoodFacilityId);
+                .HasForeignKey(mi => mi.FoodFacilityId);
 
             e.HasOne(mi => mi.MenuItemCategory)
                 .WithMany(mc => mc.MenuItems)

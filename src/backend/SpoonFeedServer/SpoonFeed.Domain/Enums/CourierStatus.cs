@@ -9,5 +9,6 @@ public enum CourierStatus
     PickedUp,
     Delivering,
     Delivered,
-    Cancelled
+    Cancelled,
+    WaitingForOrder
 }
