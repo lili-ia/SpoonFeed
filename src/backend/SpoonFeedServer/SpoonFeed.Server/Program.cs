@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SpoonFeed.Application.Interfaces;
+using SpoonFeed.Application.Mappings;
 using SpoonFeed.Application.Services;
 using SpoonFeed.Infrastructure.Services;
 using SpoonFeed.Persistence;
@@ -15,6 +16,11 @@ builder.Services.AddDbContext<SpoonFeedDbContext>(options =>
 builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -49,7 +49,17 @@ public class Courier
     [Required(ErrorMessage = "DeliveryRange is required.")]
     [Range(0.5, 100, ErrorMessage = "Delivery range must be between 0.5 and 100 kilometers.")]
     public float DeliveryRange { get; set; } = DefaultDeliveryRange;
-
+    
+    /// <summary>
+    /// Represents courier`s current latitude
+    /// </summary>
+    public double? CurrentLatitude { get; set; }
+    
+    /// <summary>
+    /// Represents courier`s current longitude
+    /// </summary>
+    public double? CurrentLongitude { get; set; }
+    
     public virtual IList<CourierReview> CourierReviews { get; set; } = [];
 
     public virtual IList<Order> Orders { get; set; } = [];

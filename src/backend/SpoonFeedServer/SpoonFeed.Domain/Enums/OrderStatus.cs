@@ -36,5 +36,9 @@ public enum OrderStatus
     /// <summary>
     /// Order was canceled.
     /// </summary>
-    Cancelled
+    Cancelled,
+    /// <summary>
+    /// There are no available couriers now
+    /// </summary>
+    CourierNotFound
 }
