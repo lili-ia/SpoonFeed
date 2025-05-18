@@ -11,4 +11,8 @@
       <ProjectReference Include="..\SpoonFeed.Persistence\SpoonFeed.Persistence.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="14.0.0" />
+    </ItemGroup>
+
 </Project>
