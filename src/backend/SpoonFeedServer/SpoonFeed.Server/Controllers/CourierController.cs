@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SpoonFeed.Application.DTOs.Courier;
+using SpoonFeed.Application.Interfaces;
+using SpoonFeedServer.Extensions;
 
 namespace SpoonFeedServer.Controllers;
 
@@ -6,31 +10,35 @@ namespace SpoonFeedServer.Controllers;
 [ApiController]
 public class CourierController : ControllerBase
 {
-    //  для управління кур'єрськими замовленнями, статусами, історією.
-    public CourierController()
+    private readonly ICourierService _courierService;
+    private IOrderService _orderService;
+    public CourierController(ICourierService courierService, IOrderService orderService)
     {
-        
+        _courierService = courierService;
+        _orderService = orderService;
     }
     
     [HttpGet("courier/{courierId}/status")]
-    public IActionResult GetCourierStatus(int courierId)
+    [Authorize]
+    public async Task<IActionResult> GetCourierStatus(Guid courierId, CancellationToken ct)
     {
-        // Потрібна логіка для отримання статусу кур'єра
-        return Ok();
+        var result = await _courierService.GetCourierStatusAsync(courierId, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpPost("courier/{courierId}/status")]
-    public IActionResult SetCourierStatus(int courierId/*, [FromBody] CourierStatus status*/)
+    [Authorize] // todo: Role = Courier
+    public async Task<IActionResult> SetCourierStatus(Guid courierId, [FromBody] CourierStatusDto status, CancellationToken ct)
     {
-        // Потрібна логіка для зміни статусу кур'єра
-        return Ok();
-    }
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-    [HttpPost("courier/{courierId}/assign/{orderId}")]
-    public IActionResult AssignOrderToCourier(int courierId, int orderId)
-    {
-        // Потрібна логіка для призначення замовлення кур'єру
-        return Ok();
+        var result = await _courierService.SetCourierStatusAsync(courierId, status.CourierStatus, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpPost("courier/{courierId}/accept/{orderId}")]
@@ -48,42 +56,35 @@ public class CourierController : ControllerBase
     }
 
     [HttpPost("courier/{courierId}/start/{orderId}")]
-    public IActionResult StartDelivery(int courierId, int orderId)
+    public IActionResult StartDelivery(Guid courierId, Guid orderId)
     {
         // Потрібна логіка для початку доставки замовлення
         return Ok();
     }
 
     [HttpPost("courier/{courierId}/complete/{orderId}")]
-    public IActionResult CompleteDelivery(int courierId, int orderId)
+    public IActionResult CompleteDelivery(Guid courierId, Guid orderId)
     {
         // Потрібна логіка для завершення доставки замовлення
         return Ok();
     }
 
-    [HttpPost("courier/{courierId}/cancel/{orderId}")]
-    public IActionResult CancelOrder(int courierId, int orderId)
-    {
-        // Потрібна логіка для скасування замовлення кур'єром
-        return Ok();
-    }
-
     [HttpGet("courier/{courierId}/history")]
-    public IActionResult GetCourierHistory(int courierId)
+    public IActionResult GetCourierHistory(Guid courierId)
     {
         // Потрібна логіка для отримання історії замовлень кур'єра
         return Ok();
     }
 
     [HttpPost("courier/{courierId}/location")]
-    public IActionResult UpdateCourierLocation(int courierId/*, [FromBody] LocationDto location*/)
+    public IActionResult UpdateCourierLocation(Guid courierId/*, [FromBody] LocationDto location*/)
     {
         // Потрібна логіка для оновлення місцезнаходження кур'єра
         return Ok();
     }
 
     [HttpGet("courier/{courierId}/current-order")]
-    public IActionResult GetCurrentOrder(int courierId)
+    public IActionResult GetCurrentOrder(Guid courierId)
     {
         // Потрібна логіка для отримання поточного замовлення кур'єра
         return Ok();
