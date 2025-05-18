@@ -42,6 +42,8 @@ dependencies:
   geolocator: ^14.0.0
   flutter_polyline_points: ^2.1.0
   font_awesome_flutter: ^9.2.0
+  open_route_service: ^1.2.7
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/spoonfeed_logo.png
+    - images/1.avif
+    - images/2.avif
+    - images/3.avif
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

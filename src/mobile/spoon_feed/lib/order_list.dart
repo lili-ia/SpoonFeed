@@ -1,18 +1,12 @@
-import 'package:courier_app/temp_API_replacement/active_order.dart';
+import 'package:courier_app/dishes_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:courier_app/models/order.dart';
-import 'package:courier_app/custom_text_style.dart';
+import 'package:courier_app/custom_text.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class OrderList extends StatefulWidget {
+class OrderList extends StatelessWidget {
   const OrderList({super.key, required this.activeOrder});
   final Order activeOrder;
-  @override
-  State<StatefulWidget> createState() {
-    return _OrderListState();
-  }
-}
-
-class _OrderListState extends State<OrderList> {
   String getStatusText(Status state) {
     switch (state) {
       case Status.expected:
@@ -26,63 +20,117 @@ class _OrderListState extends State<OrderList> {
     }
   }
 
-  Icon getStatusIcon(Status state) {
+  Icon getStatusIcon(Status state, Color color) {
     switch (state) {
       case Status.expected:
-        return Icon(Icons.schedule);
+        return Icon(Icons.schedule, color: color);
       case Status.cooking:
-        return Icon(Icons.soup_kitchen);
+        return Icon(Icons.soup_kitchen, color: color);
       case Status.canPickUp:
-        return Icon(Icons.inventory_2);
+        return Icon(Icons.inventory_2, color: color);
       case Status.pickedUp:
-        return Icon(Icons.check);
+        return Icon(Icons.check, color: color);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     var isFirst = true;
+    Color color;
     return Container(
       padding: EdgeInsets.all(10),
       child: SingleChildScrollView(
         child: Column(
           children: [
             ...activeOrder.restaurants!.map((restaurant) {
+              if (restaurant.status == Status.pickedUp) {
+                color = Colors.green;
+              } else {
+                color = Colors.black;
+              }
               Widget widgetElement = Opacity(
-                opacity: isFirst ? 1 : 0.5,
+                opacity:
+                    restaurant.status == Status.pickedUp
+                        ? 1
+                        : isFirst
+                        ? 1
+                        : 0.5,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Icon(Icons.store, color: restaurant.color),
                     Expanded(
                       child: Column(
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              CustomTextStyle(text: restaurant.name),
+                              CustomText(text: restaurant.name, color: color),
+                              SizedBox(width: 15),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(6),
+                                  minimumSize: Size(0, 0),
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (builder) {
+                                      return DishesPopUp(
+                                        dishes: restaurant.dishes,
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    CustomText(text: "Dishes "),
+                                    Icon(
+                                      FontAwesomeIcons.hamburger,
+                                      color: Colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
                               Expanded(
-                                child: CustomTextStyle(
+                                child: CustomText(
                                   text: restaurant.getConvertedDistance(),
                                   textAlign: TextAlign.right,
+                                  color: color,
                                 ),
                               ),
                             ],
                           ),
                           Row(
                             children: [
-                              CustomTextStyle(
+                              CustomText(
                                 text: getStatusText(restaurant.status),
+                                color: color,
                               ),
-                              getStatusIcon(restaurant.status),
+                              getStatusIcon(restaurant.status, color),
                             ],
                           ),
-                          CustomTextStyle(text: restaurant.address),
+                          CustomText(
+                            text: "Address: ${activeOrder.customer!.address}",
+                            color: color,
+                          ),
                           Row(
                             children: [
                               Expanded(
-                                child: CustomTextStyle(
+                                child: CustomText(
                                   text:
                                       "Verification code: ${restaurant.codeVerification}",
+                                  color: color,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomText(
+                                  text: "Phone: ${restaurant.phone}",
+                                  color: color,
                                 ),
                               ),
                             ],
@@ -94,15 +142,15 @@ class _OrderListState extends State<OrderList> {
                   ],
                 ),
               );
-              isFirst = false;
+              if (restaurant.status != Status.pickedUp) {
+                isFirst = false;
+              }
+
               return widgetElement;
             }),
             Opacity(
               opacity:
-                  activeOrder
-                              .restaurants![activeOrder.restaurants!.length - 1]
-                              .status ==
-                          Status.pickedUp
+                  activeOrder.restaurants!.last.status == Status.pickedUp
                       ? 1
                       : 0.5,
               child: Row(
@@ -114,9 +162,9 @@ class _OrderListState extends State<OrderList> {
                       children: [
                         Row(
                           children: [
-                            CustomTextStyle(text: activeOrder.customer!.name),
+                            CustomText(text: activeOrder.customer!.name),
                             Expanded(
-                              child: CustomTextStyle(
+                              child: CustomText(
                                 text:
                                     activeOrder.customer!
                                         .getConvertedDistance(),
@@ -125,17 +173,21 @@ class _OrderListState extends State<OrderList> {
                             ),
                           ],
                         ),
-                        CustomTextStyle(text: activeOrder.customer!.address),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomTextStyle(
-                                text:
-                                    "Verification code: ${activeOrder.customer!.codeVerification}",
-                              ),
-                            ),
-                          ],
+                        CustomText(
+                          text: "Address: ${activeOrder.customer!.address}",
                         ),
+                        activeOrder.customer!.phone != null
+                            ? Row(
+                              children: [
+                                Expanded(
+                                  child: CustomText(
+                                    text:
+                                        "Phone: ${activeOrder.customer!.phone}",
+                                  ),
+                                ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
                       ],
                     ),
                   ),

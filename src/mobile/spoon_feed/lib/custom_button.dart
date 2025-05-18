@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:courier_app/custom_text.dart';
+import 'package:courier_app/custom_text_for_button.dart';
 
 class CustomButton extends StatelessWidget {
   const CustomButton(
@@ -27,7 +27,7 @@ class CustomButton extends StatelessWidget {
             ElevatedButton(
               onPressed: onClick,
               style: ElevatedButton.styleFrom(backgroundColor: color),
-              child: CustomText(text),
+              child: CustomTextForButton(text),
             ),
           ],
         ),

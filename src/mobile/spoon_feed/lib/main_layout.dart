@@ -23,6 +23,7 @@ class _MainLayoutState extends State<MainLayout> {
     currentScreen ??= AuthScreen(changeScreen: changeScreen);
     return MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

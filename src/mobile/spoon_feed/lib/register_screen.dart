@@ -1,5 +1,5 @@
 import 'package:courier_app/auth_screen.dart';
-import 'package:courier_app/custom_text.dart';
+import 'package:courier_app/custom_text_for_button.dart';
 import 'package:courier_app/deliver_screen.dart';
 import 'package:courier_app/text_form.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +121,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             AuthScreen(changeScreen: widget.changeScreen),
                           );
                         },
-                        child: CustomText("Back"),
+                        child: CustomTextForButton("Back"),
                       ),
                     ),
                     SizedBox(height: 15),

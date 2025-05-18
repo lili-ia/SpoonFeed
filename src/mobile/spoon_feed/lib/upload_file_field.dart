@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:courier_app/custom_text.dart';
+import 'package:courier_app/custom_text_for_button.dart';
 import 'package:courier_app/text_form.dart';
 
 class UploadFileField extends StatefulWidget {
@@ -47,7 +47,7 @@ class _UploadFileFieldState extends State<UploadFileField> {
               ),
               TextButton.icon(
                 onPressed: pickFile,
-                label: CustomText("Choose file"),
+                label: CustomTextForButton("Choose file"),
                 icon: Icon(Icons.upload_file),
                 iconAlignment: IconAlignment.end,
                 style: TextButton.styleFrom(backgroundColor: Colors.blueAccent),

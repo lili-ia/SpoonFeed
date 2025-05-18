@@ -7,6 +7,7 @@ import 'package:courier_app/heading.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter/gestures.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key, required this.changeScreen});
@@ -46,6 +47,21 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
+  void checkAuth() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    if (!sharedPreferences.containsKey("user_id")) {
+      return;
+    }
+    sharedPreferences.getInt("user_id");
+    widget.changeScreen(DeliverScreen(changeScreen: widget.changeScreen));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkAuth();
+  }
+
   String? validate(String? input) {
     // if (input == null || input.isEmpty) {
     //   return "This is a required field";
@@ -53,25 +69,33 @@ class _AuthScreenState extends State<AuthScreen> {
     return null;
   }
 
-  void submit() {
+  void submit() async {
     setState(() {
       if (!_formKey.currentState!.validate()) {
         return;
       }
-      if (isSignIn) {
-        widget.changeScreen(DeliverScreen(changeScreen: widget.changeScreen));
-      } else {
-        widget.changeScreen(RegisterScreen(changeScreen: widget.changeScreen));
-      }
     });
+    if (isSignIn) {
+      int user_id = 1;
+      final preferences = await SharedPreferences.getInstance();
+      preferences.setInt("user_id", user_id);
+      setState(() {
+        widget.changeScreen(DeliverScreen(changeScreen: widget.changeScreen));
+      });
+    } else {
+      setState(() {
+        widget.changeScreen(RegisterScreen(changeScreen: widget.changeScreen));
+      });
+    }
   }
 
   void signInWithGoogle() async {
     GoogleSignInAccount? user = await _googleSignIn.signIn();
-    if(user != null) {
-      print("Login successful: Email: ${user.email}, Username: ${user.displayName}");
-    }
-    else{
+    if (user != null) {
+      print(
+        "Login successful: Email: ${user.email}, Username: ${user.displayName}",
+      );
+    } else {
       print("Unsuccessful login.");
     }
   }
@@ -109,7 +133,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       Text.rich(
                         TextSpan(
                           text: "$suggestionText ",
-                          style: TextStyle(fontSize: 11),
+                          style: TextStyle(fontSize: 14),
                           children: [
                             TextSpan(
                               text: switchText,

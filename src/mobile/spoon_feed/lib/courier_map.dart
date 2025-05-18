@@ -4,17 +4,18 @@ import 'package:courier_app/models/order.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:open_route_service/open_route_service.dart';
 
 class CourierMap extends StatefulWidget {
   const CourierMap({
     super.key,
-    required this.activeOrder,
+    required this.order,
     required this.updateState,
     required this.showAlertDialog,
     required this.geolocationStatus,
   });
   final GeolocationStatus geolocationStatus;
-  final Order activeOrder;
+  final Order order;
   final Function(
     LatLng courierPosition,
     List<double> restaurantDistance,
@@ -22,6 +23,40 @@ class CourierMap extends StatefulWidget {
   )
   updateState;
   final Function(String text) showAlertDialog;
+  final String _mapStyle = '''
+[
+  {
+    "featureType": "poi.business",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "featureType": "poi.attraction",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "featureType": "poi.place_of_worship",
+    "stylers": [{ "visibility": "off" }]
+  },
+  {
+    "featureType": "poi.school",
+    "stylers": [{ "visibility": "off" }]
+  }
+]
+''';
+  double getColor(Color color) {
+    switch (color) {
+      case Colors.orange:
+        return BitmapDescriptor.hueOrange;
+      case Colors.blue:
+        return BitmapDescriptor.hueBlue;
+      case Colors.green:
+        return BitmapDescriptor.hueGreen;
+      case Colors.red:
+        return BitmapDescriptor.hueRed;
+    }
+    return -1;
+  }
+
   @override
   State<StatefulWidget> createState() {
     return _CourierMapState();
@@ -35,10 +70,46 @@ class _CourierMapState extends State<CourierMap> {
   Set<Marker> markers = {};
   bool geolocatorPermissionError = false;
   bool geolocatorEnabledError = false;
+  Set<Polyline> polylines = {};
+
   @override
   void initState() {
     super.initState();
     updateState();
+  }
+
+  void createPolylinePoints(List<LatLng> points) {
+    polylines.add(
+      Polyline(
+        polylineId: PolylineId("route"),
+        points: points,
+        color: Colors.deepOrange,
+        width: 5,
+      ),
+    );
+  }
+
+  Future<List<LatLng>?> getRoutePoints(LatLng destination) async {
+    final String apiKey =
+        "5b3ce3597851110001cf62486b6e661874304d439f6f71f922f53baf";
+    OpenRouteService openrouteservice = OpenRouteService(apiKey: apiKey);
+    try {
+      final coordinates = await openrouteservice.directionsRouteCoordsGet(
+        startCoordinate: ORSCoordinate(
+          latitude: _currentPosition!.latitude,
+          longitude: _currentPosition!.longitude,
+        ),
+        endCoordinate: ORSCoordinate(
+          latitude: destination.latitude,
+          longitude: destination.longitude,
+        ),
+      );
+      return coordinates.map((point) {
+        return LatLng(point.latitude, point.longitude);
+      }).toList();
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<Position?> getCurrentPosition() async {
@@ -74,20 +145,6 @@ class _CourierMapState extends State<CourierMap> {
     return position;
   }
 
-  double getColor(Color color) {
-    switch (color) {
-      case Colors.orange:
-        return BitmapDescriptor.hueOrange;
-      case Colors.blue:
-        return BitmapDescriptor.hueBlue;
-      case Colors.green:
-        return BitmapDescriptor.hueGreen;
-      case Colors.red:
-        return BitmapDescriptor.hueRed;
-    }
-    return -1;
-  }
-
   @override
   void dispose() {
     timer?.cancel();
@@ -96,13 +153,13 @@ class _CourierMapState extends State<CourierMap> {
 
   void createMarkers() {
     if (markers.isEmpty) {
-      for (var i = 0; i < widget.activeOrder.restaurants!.length; i++) {
+      for (var i = 0; i < widget.order.restaurants!.length; i++) {
         markers.add(
           Marker(
             markerId: MarkerId(i.toString()),
-            position: widget.activeOrder.restaurants![i].position,
+            position: widget.order.restaurants![i].position,
             icon: BitmapDescriptor.defaultMarkerWithHue(
-              getColor(widget.activeOrder.restaurants![i].color!),
+              widget.getColor(widget.order.restaurants![i].color!),
             ),
           ),
         );
@@ -110,7 +167,7 @@ class _CourierMapState extends State<CourierMap> {
       markers.add(
         Marker(
           markerId: MarkerId("customer"),
-          position: widget.activeOrder.customer!.position,
+          position: widget.order.customer!.position,
         ),
       );
     }
@@ -123,7 +180,7 @@ class _CourierMapState extends State<CourierMap> {
         return;
       }
       isRunning = true;
-      var position;
+      Position? position;
       try {
         position = await getCurrentPosition();
       } on PermissionDeniedException {
@@ -157,38 +214,49 @@ class _CourierMapState extends State<CourierMap> {
         isRunning = false;
         return;
       }
-
       setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-
-        if (widget.activeOrder.active) {
-          createMarkers();
-          List<double> distancesToRestaurants = [];
-          for (var i = 0; i < widget.activeOrder.restaurants!.length; i++) {
-            distancesToRestaurants.add(
-              Geolocator.distanceBetween(
-                _currentPosition!.latitude,
-                _currentPosition!.longitude,
-                widget.activeOrder.restaurants![i].position.latitude,
-                widget.activeOrder.restaurants![i].position.longitude,
-              ),
-            );
-          }
-          widget.updateState(
-            _currentPosition!,
-            distancesToRestaurants,
-            Geolocator.distanceBetween(
-              _currentPosition!.latitude,
-              _currentPosition!.longitude,
-              widget.activeOrder.customer!.position.latitude,
-              widget.activeOrder.customer!.position.longitude,
-            ),
-          );
-        } else {
-          markers = {};
-        }
-        isRunning = false;
+        _currentPosition = LatLng(position!.latitude, position.longitude);
       });
+
+      if (!widget.order.active) {
+        isRunning = false;
+        return;
+      }
+      List<double> distancesToRestaurants = [];
+      for (var i = 0; i < widget.order.restaurants!.length; i++) {
+        distancesToRestaurants.add(
+          Geolocator.distanceBetween(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+            widget.order.restaurants![i].position.latitude,
+            widget.order.restaurants![i].position.longitude,
+          ),
+        );
+      }
+      setState(() {
+        if (markers.isEmpty) {
+          createMarkers();
+        }
+        widget.updateState(
+          _currentPosition!,
+          distancesToRestaurants,
+          Geolocator.distanceBetween(
+            _currentPosition!.latitude,
+            _currentPosition!.longitude,
+            widget.order.customer!.position.latitude,
+            widget.order.customer!.position.longitude,
+          ),
+        );
+      });
+      final points = await getRoutePoints(
+        widget.order.needToDeliver()!.position,
+      );
+      setState(() {
+        if (points != null) {
+          createPolylinePoints(points);
+        }
+      });
+      isRunning = false;
     });
   }
 
@@ -197,6 +265,7 @@ class _CourierMapState extends State<CourierMap> {
     return _currentPosition == null
         ? Center(child: CircularProgressIndicator())
         : GoogleMap(
+          style: widget._mapStyle,
           myLocationEnabled: true,
           initialCameraPosition: CameraPosition(
             target: _currentPosition!,
@@ -206,6 +275,7 @@ class _CourierMapState extends State<CourierMap> {
             _googleMapController = controller;
           },
           markers: markers,
+          polylines: polylines,
         );
   }
 }
