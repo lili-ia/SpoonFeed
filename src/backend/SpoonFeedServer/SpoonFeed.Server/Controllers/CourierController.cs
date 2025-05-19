@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpoonFeed.Application.DTOs.Courier;
 using SpoonFeed.Application.Interfaces;
+using SpoonFeed.Domain.Enums;
 using SpoonFeedServer.Extensions;
 
 namespace SpoonFeedServer.Controllers;
@@ -18,7 +19,7 @@ public class CourierController : ControllerBase
         _orderService = orderService;
     }
     
-    [HttpGet("courier/{courierId}/status")]
+    [HttpGet("{courierId}/status")]
     [Authorize]
     public async Task<IActionResult> GetCourierStatus(Guid courierId, CancellationToken ct)
     {
@@ -27,7 +28,7 @@ public class CourierController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("courier/{courierId}/status")]
+    [HttpPost("{courierId}/status")]
     [Authorize] // todo: Role = Courier
     public async Task<IActionResult> SetCourierStatus(Guid courierId, [FromBody] CourierStatusDto status, CancellationToken ct)
     {
@@ -41,52 +42,70 @@ public class CourierController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("courier/{courierId}/accept/{orderId}")]
-    public IActionResult AcceptOrder(int courierId, int orderId)
+    [HttpPost("{courierId}/accept/{orderId}")]
+    public async Task<IActionResult> AcceptOrder(Guid courierId, Guid orderId, CancellationToken ct)
     {
-        // Потрібна логіка для прийняття замовлення
-        return Ok();
+        var result = await _courierService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Accept, ct);
+        
+        return result.ToActionResult();
     }
 
-    [HttpPost("courier/{courierId}/reject/{orderId}")]
-    public IActionResult RejectOrder(int courierId, int orderId)
+    [HttpPost("{courierId}/reject/{orderId}")]
+    public async Task<IActionResult> RejectOrder(Guid courierId, Guid orderId, CancellationToken ct)
     {
-        // Потрібна логіка для відмови від замовлення
-        return Ok();
+        var result = await _courierService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Reject, ct);
+        
+        return result.ToActionResult();
     }
 
-    [HttpPost("courier/{courierId}/start/{orderId}")]
+    [HttpPost("{courierId}/start/{orderId}")]
     public IActionResult StartDelivery(Guid courierId, Guid orderId)
     {
         // Потрібна логіка для початку доставки замовлення
         return Ok();
     }
 
-    [HttpPost("courier/{courierId}/complete/{orderId}")]
+    [HttpPost("{courierId}/complete/{orderId}")]
     public IActionResult CompleteDelivery(Guid courierId, Guid orderId)
     {
         // Потрібна логіка для завершення доставки замовлення
         return Ok();
     }
 
-    [HttpGet("courier/{courierId}/history")]
+    [HttpGet("{courierId}/history")]
     public IActionResult GetCourierHistory(Guid courierId)
     {
         // Потрібна логіка для отримання історії замовлень кур'єра
         return Ok();
     }
 
-    [HttpPost("courier/{courierId}/location")]
+    [HttpPost("{courierId}/location")]
     public IActionResult UpdateCourierLocation(Guid courierId/*, [FromBody] LocationDto location*/)
     {
         // Потрібна логіка для оновлення місцезнаходження кур'єра
         return Ok();
     }
 
-    [HttpGet("courier/{courierId}/current-order")]
+    [HttpGet("{courierId}/current-order")]
     public IActionResult GetCurrentOrder(Guid courierId)
     {
         // Потрібна логіка для отримання поточного замовлення кур'єра
         return Ok();
+    }
+    
+    [HttpGet("orders/{orderId}/ready-positions")]
+    public async Task<IActionResult> GetReadyOrderPositions(Guid orderId, CancellationToken ct)
+    {
+        var result = await _orderService.GetOrderPositionsAsync(ct, orderId, OrderPositionPickupStatus.Ready);
+
+        return result.ToActionResult();
+    }
+    
+    [HttpGet("orders/{orderId}/all-positions")]
+    public async Task<IActionResult> GetAllOrderPositions(Guid orderId, CancellationToken ct)
+    {
+        var result = await _orderService.GetOrderPositionsAsync(ct, orderId);
+
+        return result.ToActionResult();
     }
 }

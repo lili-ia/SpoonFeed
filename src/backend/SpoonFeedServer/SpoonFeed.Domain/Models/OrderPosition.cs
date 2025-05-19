@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Domain.Models;
 
@@ -19,6 +20,11 @@ public class OrderPosition : BaseEntity
     /// Calculated by the database, with respect to quantity and discounts.
     /// </summary>
     public double TotalPrice { get; set; }
+    
+    /// <summary>
+    /// Represents current pickup status
+    /// </summary>
+    public OrderPositionPickupStatus PickupStatus { get; set; }
     
     [Required(ErrorMessage = "OrderId is required.")]
     public Guid OrderId { get; set; }
