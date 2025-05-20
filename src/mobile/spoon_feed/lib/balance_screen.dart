@@ -1,6 +1,8 @@
 import 'package:courier_app/deliver_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:courier_app/custom_button.dart';
+import 'package:courier_app/payment_service.dart';
+import 'package:courier_app/stripe_api.dart';
 
 class BalanceScreen extends StatefulWidget {
   const BalanceScreen({super.key, required this.changeScreen});
@@ -22,6 +24,12 @@ class _BalanceScreenState extends State<BalanceScreen> {
   // Focus node for the text field
   final FocusNode _amountFocusNode = FocusNode();
   
+  // Payment service for handling Stripe transactions
+  final PaymentService _paymentService = PaymentService();
+
+  // Flag to show if payment is processing
+  bool _isProcessing = false;
+
   // Transaction history (mock data)
   final List<Map<String, dynamic>> _transactions = [
     {
@@ -42,24 +50,176 @@ class _BalanceScreenState extends State<BalanceScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _initializeStripe();
+  }
+
+  Future<void> _initializeStripe() async {
+    try {
+      await StripeApi().initializeStripe();
+    } catch (e) {
+      // Handle initialization error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to initialize payment system: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _amountFocusNode.dispose();
     super.dispose();
   }
 
-  void _deposit() {
-    _processTransaction('Deposit');
+  void _deposit() async {
+    if (_validateAmount()) {
+      final double amount = double.parse(_amountController.text);
+      
+      setState(() {
+        _isProcessing = true;
+      });
+
+      // Show processing dialog
+      if (mounted) {
+        _paymentService.showPaymentProcessingDialog(context);
+      }
+
+      try {
+        // Process deposit with Stripe
+        final result = await _paymentService.processDeposit(amount);
+        
+        // Hide processing dialog
+        if (mounted) {
+          Navigator.of(context).pop(); // Pop the processing dialog
+        }
+
+        setState(() {
+          _isProcessing = false;
+        });
+
+        if (result['success']) {
+          // Update balance and transaction history
+          setState(() {
+            _balance += amount;
+            _transactions.insert(0, {
+              'type': 'Deposit',
+              'amount': amount,
+              'date': DateTime.now().toString().substring(0, 10),
+              'paymentId': result['paymentId'],
+            });
+            _amountController.clear();
+          });
+
+          // Show success message
+          if (mounted) {
+            _paymentService.showSuccessDialog(context, 'Deposit', amount);
+          }
+        } else {
+          // Show error message
+          if (mounted) {
+            _paymentService.showErrorDialog(context, result['error'] ?? 'Deposit failed');
+          }
+        }
+      } catch (e) {
+        // Hide processing dialog
+        if (mounted) {
+          Navigator.of(context).pop(); // Pop the processing dialog
+        }
+
+        setState(() {
+          _isProcessing = false;
+        });
+
+        // Show error message
+        if (mounted) {
+          _paymentService.showErrorDialog(context, 'Error: $e');
+        }
+      }
+    }
   }
 
-  void _withdraw() {
-    _processTransaction('Withdraw');
+  void _withdraw() async {
+    if (_validateAmount()) {
+      final double amount = double.parse(_amountController.text);
+      
+      // Check if there's enough balance
+      if (amount > _balance) {
+        _showErrorSnackBar('Insufficient balance');
+        return;
+      }
+
+      setState(() {
+        _isProcessing = true;
+      });
+
+      // Show processing dialog
+      if (mounted) {
+        _paymentService.showPaymentProcessingDialog(context);
+      }
+
+      try {
+        // Process withdrawal with Stripe
+        final result = await _paymentService.processWithdrawal(amount);
+        
+        // Hide processing dialog
+        if (mounted) {
+          Navigator.of(context).pop(); // Pop the processing dialog
+        }
+
+        setState(() {
+          _isProcessing = false;
+        });
+
+        if (result['success']) {
+          // Update balance and transaction history
+          setState(() {
+            _balance -= amount;
+            _transactions.insert(0, {
+              'type': 'Withdraw',
+              'amount': -amount,
+              'date': DateTime.now().toString().substring(0, 10),
+              'payoutId': result['payoutId'],
+            });
+            _amountController.clear();
+          });
+
+          // Show success message
+          if (mounted) {
+            _paymentService.showSuccessDialog(context, 'Withdrawal', amount);
+          }
+        } else {
+          // Show error message
+          if (mounted) {
+            _paymentService.showErrorDialog(context, result['error'] ?? 'Withdrawal failed');
+          }
+        }
+      } catch (e) {
+        // Hide processing dialog
+        if (mounted) {
+          Navigator.of(context).pop(); // Pop the processing dialog
+        }
+
+        setState(() {
+          _isProcessing = false;
+        });
+
+        // Show error message
+        if (mounted) {
+          _paymentService.showErrorDialog(context, 'Error: $e');
+        }
+      }
+    }
   }
 
-  void _processTransaction(String type) {
+  bool _validateAmount() {
     if (_amountController.text.isEmpty) {
       _showErrorSnackBar('Please enter an amount');
-      return;
+      return false;
     }
 
     try {
@@ -67,34 +227,13 @@ class _BalanceScreenState extends State<BalanceScreen> {
       
       if (amount <= 0) {
         _showErrorSnackBar('Please enter a positive amount');
-        return;
+        return false;
       }
       
-      if (type == 'Withdraw' && amount > _balance) {
-        _showErrorSnackBar('Insufficient balance');
-        return;
-      }
-
-      setState(() {
-        _balance += type == 'Deposit' ? amount : -amount;
-        
-        _transactions.insert(0, {
-          'type': type,
-          'amount': type == 'Deposit' ? amount : -amount,
-          'date': DateTime.now().toString().substring(0, 10),
-        });
-        
-        _amountController.clear();
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$type successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      });
+      return true;
     } catch (e) {
       _showErrorSnackBar('Invalid amount');
+      return false;
     }
   }
 
@@ -175,7 +314,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
               child: TextField(
                 controller: _amountController,
                 focusNode: _amountFocusNode,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Amount',
                   hintText: 'Enter amount',
@@ -186,6 +325,7 @@ class _BalanceScreenState extends State<BalanceScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
+                enabled: !_isProcessing,
               ),
             ),
             
@@ -198,14 +338,20 @@ class _BalanceScreenState extends State<BalanceScreen> {
                   Expanded(
                     child: CustomButton(
                       'Deposit',
-                      _deposit,
+                      _isProcessing ? () {} : _deposit,
+                      margin: 0,
+                      opacity: _isProcessing ? 0.5 : 1.0,
+                      color: Colors.green,
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: CustomButton(
                       'Withdraw',
-                      _withdraw,
+                      _isProcessing ? () {} : _withdraw,
+                      margin: 0,
+                      opacity: _isProcessing ? 0.5 : 1.0,
+                      color: Colors.redAccent,
                     ),
                   ),
                 ],
