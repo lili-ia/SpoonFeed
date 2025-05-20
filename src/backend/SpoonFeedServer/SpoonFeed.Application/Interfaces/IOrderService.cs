@@ -11,8 +11,7 @@ public interface IOrderService
         Guid userId, 
         CancellationToken ct);
 
-    Task<Result<IList<OrderPositionDto>>> GetOrderPositionsAsync(
+    Task<Result<OrderPickupStatusResponse>> GetOrderPickupStatusAsync(
         CancellationToken ct,
-        Guid orderId, 
-        OrderPositionPickupStatus? positionStatus = null);
+        Guid orderId);
 }

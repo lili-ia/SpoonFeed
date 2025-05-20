@@ -86,7 +86,7 @@ public class CourierService : ICourierService
         switch (responseAction)
         {
             case OrderResponseAction.Accept:
-                order.Status = OrderStatus.Delivering;
+                order.Status = OrderStatus.WaitingOrderItem;
                 break;
             case OrderResponseAction.Reject:
                 order.Status = OrderStatus.WaitingForCourier;

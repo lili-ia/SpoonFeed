@@ -52,38 +52,41 @@ public class OrderService : IOrderService
         }
     }
 
-    public async Task<Result<IList<OrderPositionDto>>> GetOrderPositionsAsync(
+    public async Task<Result<OrderPickupStatusResponse>> GetOrderPickupStatusAsync(
         CancellationToken ct,
-        Guid orderId, 
-        OrderPositionPickupStatus? positionStatus = null)
+        Guid orderId)
     {
         var order = await _db.Orders.FindAsync(orderId, ct);
 
         if (order == null)
         {
-            return Result<IList<OrderPositionDto>>.FailureResult("Couldn't find an order with such id");
+            return Result<OrderPickupStatusResponse>.FailureResult("Couldn't find an order with such id");
         }
 
-        var query = _db.OrderPositions
-            .Where(op => op.OrderId == orderId);
-
-        if (positionStatus != null)
-        {
-            query = query.Where(op => op.PickupStatus == positionStatus);
-        }
-
-        var readyPositions = await query
-            .Select(op => new OrderPositionDto
+        var remainingFacilities = await _db.OrderPositions
+            .Where(op => op.OrderId == orderId
+                         && op.PickupStatus != OrderPositionPickupStatus.PickedUp)
+            .GroupBy(op => new { op.MenuItem.FoodFacilityId, op.MenuItem.FoodFacility.Name })
+            .Select(g => new FacilityDto
             {
-                FoodFacilityId = op.MenuItem.FoodFacilityId,
-                OrderPositionName = op.MenuItem.Name,
-                FoodFacilityName = op.MenuItem.FoodFacility.Name,
-                OrderPositionQuantity = op.Quantity,
-                PickupStatus = op.PickupStatus
+                Id = g.Key.FoodFacilityId,
+                FacilityName = g.Key.Name,
+                PositionsRemaining = g.Count()
             })
             .ToListAsync(ct);
+        
+        var response = new OrderPickupStatusResponse
+        {
+            AllPickedUp = remainingFacilities.Count == 0,
+            RemainingFacilities = remainingFacilities
+        };
 
-        return Result<IList<OrderPositionDto>>.SuccessResult(readyPositions);
+        if (response.AllPickedUp)
+        {
+            order.Status = OrderStatus.Delivering;
+            
+        }
+
+        return Result<OrderPickupStatusResponse>.SuccessResult(response);
     }
-
 }
