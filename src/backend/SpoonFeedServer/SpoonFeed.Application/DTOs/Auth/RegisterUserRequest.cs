@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Application.DTOs.Auth;
 
@@ -16,12 +17,4 @@ public record RegisterUserRequest(
     string? LastName,
     string? Address,
     DateOnly? BirthDate,
-    UserType UserType);
-
-public enum UserType
-{
-    Customer,
-    Courier,
-    FoodFacility,
-    FoodChain
-}
+    Role UserType);

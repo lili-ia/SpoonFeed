@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeedServer.Extensions;
@@ -6,6 +7,7 @@ namespace SpoonFeedServer.Controllers;
 
 [ApiController]
 [Route("api/food-facility")]
+[Authorize(Roles = "FoodFacility")]
 public class FoodFacilityController : ControllerBase
 {
     private IFoodFacilityService _facilityService;

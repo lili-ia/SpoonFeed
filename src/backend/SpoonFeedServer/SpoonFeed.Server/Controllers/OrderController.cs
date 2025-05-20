@@ -8,6 +8,7 @@ namespace SpoonFeedServer.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class OrderController : ControllerBase
 {
     private readonly IUserContextService _userContextService;
@@ -20,7 +21,7 @@ public class OrderController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize] // todo: Role = Customer
+    [Authorize(Roles = "Customer")] 
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto, CancellationToken ct)
     {
         if (!ModelState.IsValid)

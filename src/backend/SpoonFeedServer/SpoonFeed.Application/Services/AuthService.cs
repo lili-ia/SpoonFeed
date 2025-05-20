@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SpoonFeed.Application.DTOs.Auth;
 using SpoonFeed.Application.Interfaces;
+using SpoonFeed.Domain.Enums;
 using SpoonFeed.Domain.Models;
 using SpoonFeed.Persistence;
 
@@ -45,29 +46,29 @@ public class AuthService : IAuthService
             return Result<AuthResponse>.FailureResult("Invalid login attempt.");
         }
         
-        UserType? userType = null;
+        Role? role = null;
 
         if (await _db.Customers.AnyAsync(c => c.UserIdentityId == user.Id, ct))
-            userType = UserType.Customer;
+            role = Role.Customer;
         else if (await _db.Couriers.AnyAsync(c => c.UserIdentityId == user.Id, ct))
-            userType = UserType.Courier;
+            role = Role.Courier;
         else if (await _db.FoodChains.AnyAsync(f => f.UserIdentityId == user.Id, ct))
-            userType = UserType.FoodChain;
+            role = Role.FoodChain;
         else if (await _db.FoodFacilities.AnyAsync(f => f.UserIdentityId == user.Id, ct))
-            userType = UserType.FoodFacility;
+            role = Role.FoodFacility;
         
-        if (userType == null)
+        if (role == null)
             return Result<AuthResponse>.FailureResult("User role is not assigned.");
 
         var accessToken = _jwtService.GenerateJwtToken(
-            user.Id.ToString(), user.Email, userType.ToString());
+            user.Id.ToString(), user.Email, role.ToString());
         
         return Result<AuthResponse>.SuccessResult(new AuthResponse(accessToken));
     }
 
     public async Task<Result<AuthResponse>> RegisterAsync(RegisterUserRequest request, CancellationToken ct)
     {
-        if (!Enum.IsDefined(typeof(UserType), request.UserType))
+        if (!Enum.IsDefined(typeof(Role), request.UserType))
         {
             return Result<AuthResponse>.FailureResult("Invalid user type.");
         }
@@ -98,7 +99,7 @@ public class AuthService : IAuthService
 
             switch (request.UserType)
             {
-                case UserType.Courier:
+                case Role.Courier:
                 {
                     await _db.Couriers.AddAsync(new Courier
                     {
@@ -106,7 +107,7 @@ public class AuthService : IAuthService
                     }, ct);
                     break;
                 }
-                case UserType.Customer:
+                case Role.Customer:
                 {
                     await _db.Customers.AddAsync(new Customer
                     {
@@ -114,7 +115,7 @@ public class AuthService : IAuthService
                     }, ct);
                     break;
                 }
-                case UserType.FoodChain:
+                case Role.FoodChain:
                 {
                     await _db.FoodChains.AddAsync(new FoodChain
                     {
@@ -122,7 +123,7 @@ public class AuthService : IAuthService
                     }, ct);
                     break;
                 }
-                case UserType.FoodFacility:
+                case Role.FoodFacility:
                 {
                     await _db.FoodFacilities.AddAsync(new FoodFacility
                     {
