@@ -13,17 +13,20 @@ namespace SpoonFeedServer.Controllers;
 public class CourierController : ControllerBase
 {
     private readonly ICourierService _courierService;
-    private IOrderService _orderService;
+    private ICourierOrderService _courierOrderService;
+    private ICustomerOrderService _customerOrderService;
     private readonly IUserContextService _userContextService;
     
     public CourierController(
         ICourierService courierService, 
-        IOrderService orderService, 
-        IUserContextService userContextService)
+        IUserContextService userContextService, 
+        ICourierOrderService courierOrderService, 
+        ICustomerOrderService customerOrderService)
     {
         _courierService = courierService;
-        _orderService = orderService;
         _userContextService = userContextService;
+        _courierOrderService = courierOrderService;
+        _customerOrderService = customerOrderService;
     }
     
     [HttpGet("status")]
@@ -71,7 +74,7 @@ public class CourierController : ControllerBase
             return courierIdResult;
         }
         
-        var result = await _courierService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Accept, ct);
+        var result = await _courierOrderService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Accept, ct);
         
         return result.ToActionResult();
     }
@@ -86,7 +89,7 @@ public class CourierController : ControllerBase
             return courierIdResult;
         }
         
-        var result = await _courierService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Reject, ct);
+        var result = await _courierOrderService.RespondToOrderAsync(courierId, orderId, OrderResponseAction.Reject, ct);
         
         return result.ToActionResult();
     }
@@ -94,7 +97,7 @@ public class CourierController : ControllerBase
     [HttpGet("orders/{orderId}/pickup-status")]
     public async Task<IActionResult> GetOrderPickupStatus(Guid orderId, CancellationToken ct)
     {
-        var result = await _orderService.GetOrderPickupStatusAsync(ct, orderId);
+        var result = await _courierOrderService.GetOrderPickupStatusAsync(ct, orderId);
 
         return result.ToActionResult();
     }
