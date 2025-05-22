@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SpoonFeed.Application.DTOs.Cart;
 using SpoonFeed.Application.DTOs.Order;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeedServer.Extensions;
@@ -13,11 +14,16 @@ public class CustomerController : ControllerBase
 {
     private readonly IUserContextService _userContextService;
     private ICustomerOrderService _customerOrderService;
+    private ICartService _cartService;
     
-    public CustomerController(IUserContextService userContextService, ICustomerOrderService customerOrderService)
+    public CustomerController(
+        IUserContextService userContextService, 
+        ICustomerOrderService customerOrderService, 
+        ICartService cartService)
     {
         _userContextService = userContextService;
         _customerOrderService = customerOrderService;
+        _cartService = cartService;
     }
     
     [HttpPost("orders")]
@@ -66,6 +72,8 @@ public class CustomerController : ControllerBase
         }
 
         var result = await _customerOrderService.GetOrderDetailsAsync(customerId, orderId, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpGet("orders/{orderId}/status")]
@@ -92,19 +100,46 @@ public class CustomerController : ControllerBase
     [HttpGet("cart")]
     public async Task<IActionResult> GetCart(CancellationToken ct)
     {
-        return Ok();
+        var customerIdResult = TryGetCustomerId(out var customerId);
+        
+        if (customerIdResult != null)
+        {
+            return customerIdResult;
+        }
+
+        var result = await _cartService.GetCartAsync(customerId, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpPost("cart/add")]
     public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request, CancellationToken ct)
     {
-        return Ok();
+        var customerIdResult = TryGetCustomerId(out var customerId);
+        
+        if (customerIdResult != null)
+        {
+            return customerIdResult;
+        }
+        
+        var result = await _cartService.AddToCartAsync(customerId, request, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpPost("cart/remove")]
     public async Task<IActionResult> RemoveFromCart([FromBody] RemoveFromCartRequest request, CancellationToken ct)
     {
-        return Ok();
+        var customerIdResult = TryGetCustomerId(out var customerId);
+        
+        if (customerIdResult != null)
+        {
+            return customerIdResult;
+        }
+
+        var result = await _cartService.RemoveFromCartAsync(customerId, request, ct);
+
+        return result.ToActionResult();
     }
 
     [HttpPost("orders/{orderId}/pay")]

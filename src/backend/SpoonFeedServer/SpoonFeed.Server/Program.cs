@@ -13,6 +13,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultDevelop
 builder.Services.AddDbContext<SpoonFeedDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddMemoryCache();
 builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
