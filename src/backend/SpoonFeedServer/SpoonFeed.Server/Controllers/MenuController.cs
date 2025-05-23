@@ -24,9 +24,9 @@ public class MenuController : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(MenuItemResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken ct = default)
     {
-        var result = await _menuService.GetByIdAsync(id);
+        var result = await _menuService.GetByIdAsync(id, ct);
         return result.ToActionResult();
     }
 
@@ -35,9 +35,9 @@ public class MenuController : ControllerBase
     /// </summary>
     [HttpGet("facility/{foodFacilityId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<MenuItemResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByFoodFacility(Guid foodFacilityId)
+    public async Task<IActionResult> GetByFoodFacility(Guid foodFacilityId, CancellationToken ct = default)
     {
-        var result = await _menuService.GetByFacilityAsync(foodFacilityId);
+        var result = await _menuService.GetByFacilityAsync(foodFacilityId, ct);
         return result.ToActionResult();
     }
 
@@ -47,11 +47,11 @@ public class MenuController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] MenuItemCreateRequest request)
+    public async Task<IActionResult> Create([FromBody] MenuItemCreateRequest request, CancellationToken ct = default)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        var result = await _menuService.CreateAsync(request);
+        var result = await _menuService.CreateAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -62,12 +62,13 @@ public class MenuController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] MenuItemUpdateRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] MenuItemUpdateRequest request,
+        CancellationToken ct = default)
     {
         if (id != request.Id)
             return BadRequest("Mismatched ID in URL and body.");
 
-        var result = await _menuService.UpdateAsync(request);
+        var result = await _menuService.UpdateAsync(request, ct);
 
         return result.ToActionResult();
     }
@@ -78,9 +79,9 @@ public class MenuController : ControllerBase
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        var result = await _menuService.DeleteAsync(id);
+        var result = await _menuService.DeleteAsync(id, ct);
         return result.ToActionResult();
     }
 }
