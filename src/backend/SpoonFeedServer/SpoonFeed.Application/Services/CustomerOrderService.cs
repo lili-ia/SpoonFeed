@@ -33,6 +33,7 @@ public class CustomerOrderService : ICustomerOrderService
         order.Status = OrderStatus.PendingPayment;
         order.DeliveryAddress = address;
         order.OrderPositions = orderPositions;
+        order.DeliveryConfirmationCode = GenerateConfirmationCode();
 
         try
         {
@@ -104,5 +105,11 @@ public class CustomerOrderService : ICustomerOrderService
         }
         
         return Result<OrderStatus>.SuccessResult(order.Status);
+    }
+    
+    private string GenerateConfirmationCode()
+    {
+        var random = new Random();
+        return random.Next(1000, 9999).ToString(); 
     }
 }

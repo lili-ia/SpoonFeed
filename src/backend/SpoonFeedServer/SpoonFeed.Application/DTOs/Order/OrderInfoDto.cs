@@ -13,6 +13,8 @@ public class OrderInfoDto
     
     public IList<OrderPositionDto> OrderPositions { get; set; } 
     
+    public string DeliveryConfirmationCode { get; set; }
+    
     public double? CourierLatitude { get; set; }
     
     public double? CourierLongitude { get; set; }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SpoonFeed.Application.DTOs.Courier;
+using SpoonFeed.Application.DTOs.Order;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeed.Domain.Enums;
 using SpoonFeedServer.Extensions;
@@ -98,6 +99,30 @@ public class CourierController : ControllerBase
     public async Task<IActionResult> GetOrderPickupStatus(Guid orderId, CancellationToken ct)
     {
         var result = await _courierOrderService.GetOrderPickupStatusAsync(ct, orderId);
+
+        return result.ToActionResult();
+    }
+
+    [HttpPost("orders/{orderId}/complete")]
+    public async Task<IActionResult> CompleteDeliveryWithCode(
+        [FromRoute] Guid orderId, 
+        [FromBody] DeliveryCodeRequest code,
+        CancellationToken ct)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+    
+        var courierIdResult = TryGetCourierId(out var courierId);
+        
+        if (courierIdResult != null)
+        {
+            return courierIdResult;
+        }
+        
+        var result = await _courierOrderService
+            .CompleteDeliveryWithCodeAsync(courierId, orderId, code, ct);
 
         return result.ToActionResult();
     }

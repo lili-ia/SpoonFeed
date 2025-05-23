@@ -49,6 +49,13 @@ public class Order : BaseEntity
     /// </summary>
     public double Total { get; set; }
     
+    /// <summary>
+    /// Used to confirm delivery on customer`s side
+    /// </summary>
+    [Required]
+    [StringLength(4, MinimumLength = 4)]
+    public string DeliveryConfirmationCode { get; set; }
+    
     [Required(ErrorMessage = "CustomerId is required.")]
     public Guid CustomerId { get; set; }
     

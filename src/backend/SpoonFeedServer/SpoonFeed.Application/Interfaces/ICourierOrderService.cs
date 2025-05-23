@@ -14,4 +14,10 @@ public interface ICourierOrderService
         Guid orderId, 
         OrderResponseAction responseAction, 
         CancellationToken ct);
+
+    Task<Result<bool>> CompleteDeliveryWithCodeAsync(
+        Guid courierId, 
+        Guid orderId, 
+        DeliveryCodeRequest code,
+        CancellationToken ct);
 }
