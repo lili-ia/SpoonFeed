@@ -1,20 +1,35 @@
 using System.ComponentModel.DataAnnotations;
+using SpoonFeed.Application.Validators;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Application.DTOs.Auth;
 
-public record RegisterUserRequest(
-    [Required]
-    [EmailAddress]
-    string Email,
-    [Required]
+public class RegisterUserRequest
+{
+    [Required(ErrorMessage = "Email is required")] 
+    [EmailAddress(ErrorMessage = "Invalid email address")]
+    public string Email { get; set; }
+
+    [Required] 
     [StringLength(50, MinimumLength = 6)]
-    string Password,
+    public string Password { get; set; }
+
+    [Required] 
+    [UkrainianPhoneNumber]
+    public string PhoneNumber { get; set; }
+
+    [OnlyLetters]
+    public string? FirstName { get; set; }
+    
+    [OnlyLetters]
+    public string? LastName { get; set; }
+    
+    public string? Address { get; set; }
+
+    public DateOnly? BirthDate { get; set; }
+    
+    [ExistingRole]
     [Required]
-    [RegularExpression(@"^\+380\d{9}$", ErrorMessage = "Phone number must be in the format +380XXXXXXXXX.")]
-    string PhoneNumber,
-    string? FirstName, 
-    string? LastName,
-    string? Address,
-    DateOnly? BirthDate,
-    Role UserType);
+    public Role UserType { get; set; }
+}
+    

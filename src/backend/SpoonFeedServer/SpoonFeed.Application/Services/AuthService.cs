@@ -36,14 +36,14 @@ public class AuthService : IAuthService
         if (user == null)
         {
             return Result<AuthResponse>.FailureResult(
-                $"User with email {request.Email} does not exist.");
+                $"User with email {request.Email} does not exist.", ErrorType.NotFound);
         }
 
         var isPasswordValid = _passwordService.VerifyPassword(user.PasswordHash, request.Password);
 
         if (!isPasswordValid)
         {
-            return Result<AuthResponse>.FailureResult("Invalid login attempt.");
+            return Result<AuthResponse>.FailureResult("Invalid login attempt.", ErrorType.Forbidden);
         }
         
         Role? role = null;
@@ -58,27 +58,31 @@ public class AuthService : IAuthService
             role = Role.FoodFacility;
         
         if (role == null)
-            return Result<AuthResponse>.FailureResult("User role is not assigned.");
+            return Result<AuthResponse>.FailureResult("User role is not assigned.", ErrorType.Validation);
 
-        var accessToken = _jwtService.GenerateJwtToken(
-            user.Id.ToString(), user.Email, role.ToString());
-        
-        return Result<AuthResponse>.SuccessResult(new AuthResponse(accessToken));
+        try
+        {
+            var accessToken = _jwtService.GenerateJwtToken(
+                user.Id.ToString(), user.Email, role.ToString());
+
+            return Result<AuthResponse>.SuccessResult(new AuthResponse(accessToken));
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            
+            return Result<AuthResponse>.FailureResult("An internal error occured", ErrorType.ServerError);
+        }
     }
 
     public async Task<Result<AuthResponse>> RegisterAsync(RegisterUserRequest request, CancellationToken ct)
     {
-        if (!Enum.IsDefined(typeof(Role), request.UserType))
-        {
-            return Result<AuthResponse>.FailureResult("Invalid user type.");
-        }
-        
         var userExists = await _db.UserIdentities
             .AnyAsync(u => u.Email == request.Email, cancellationToken: ct);
 
         if (userExists)
         {
-            return Result<AuthResponse>.FailureResult($"User with email {request.Email} already exists.");
+            return Result<AuthResponse>.FailureResult($"User with email {request.Email} already exists.", ErrorType.Forbidden);
         }
 
         var newUser = new UserIdentity

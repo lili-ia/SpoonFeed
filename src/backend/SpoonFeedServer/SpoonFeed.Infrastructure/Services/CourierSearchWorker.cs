@@ -94,7 +94,6 @@ public class CourierSearchWorker : BackgroundService
 
                 _logger.LogInformation($"Courier {courier.UserIdentityId} accepted order {order.Id}");
             }
-
         }
     }
 }

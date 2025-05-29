@@ -7,20 +7,33 @@ namespace SpoonFeed.Persistence;
 public class SpoonFeedDbContext : DbContext
 {
     public DbSet<Courier> Couriers { get; set; }
+    
     public DbSet<UserIdentity> UserIdentities { get; set; }
+    
     public DbSet<CourierReview> CourierReviews { get; set; }
-    public DbSet<Currency> Currencies { get; set; }
+    
     public DbSet<Customer> Customers { get; set; }
+    
     public DbSet<Discount> Discounts { get; set; }
+    
     public DbSet<FoodChain> FoodChains { get; set; }
+    
     public DbSet<FoodFacility> FoodFacilities { get; set; }
+    
     public DbSet<FoodFacilityReview> FoodFacilityReviews { get; set; }
+    
     public DbSet<Image> Images { get; set; }
+    
     public DbSet<MenuItem> MenuItems { get; set; }
+    
     public DbSet<MenuItemCategory> MenuItemCategories { get; set; }
+    
     public DbSet<Order> Orders { get; set; }
+    
     public DbSet<OrderPosition> OrderPositions { get; set; }
+    
     public DbSet<Transaction> Transactions { get; set; }
+    
     public DbSet<UserDocument> UserDocuments { get; set; }
 
     public SpoonFeedDbContext(DbContextOptions<SpoonFeedDbContext> options) : base(options)
@@ -48,12 +61,6 @@ public class SpoonFeedDbContext : DbContext
             e.HasOne(cr => cr.Customer)
                 .WithMany()
                 .HasForeignKey(cr => cr.CustomerId);
-        });
-
-        modelBuilder.Entity<Currency>(e =>
-        {
-            e.HasIndex(c => c.Code)
-                .IsUnique();
         });
 
         modelBuilder.Entity<Customer>(e =>
@@ -122,10 +129,6 @@ public class SpoonFeedDbContext : DbContext
         
         modelBuilder.Entity<MenuItem>(e =>
         {
-            e.HasOne(mi => mi.Currency)
-                .WithMany()
-                .HasForeignKey(mi => mi.CurrencyId);
-
             e.HasOne(mi => mi.FoodFacility)
                 .WithMany(f => f.MenuItems)
                 .HasForeignKey(mi => mi.FoodFacilityId);
@@ -168,10 +171,6 @@ public class SpoonFeedDbContext : DbContext
 
         modelBuilder.Entity<Transaction>(e =>
         {
-            e.HasOne(t => t.Currency)
-                .WithMany()
-                .HasForeignKey(t => t.CurrencyId);
-
             e.HasOne(t => t.Customer)
                 .WithMany(c => c.Transactions)
                 .HasForeignKey(t => t.CustomerId);
@@ -183,6 +182,14 @@ public class SpoonFeedDbContext : DbContext
             e.HasOne(t => t.FoodFacility)
                 .WithMany(f => f.Transactions)
                 .HasForeignKey(t => t.FoodFacilityId);
+            
+            e.HasOne(t => t.Order)
+                .WithMany()
+                .HasForeignKey(t => t.OrderId);
+            
+            e.HasOne(t => t.OrderPosition)
+                .WithMany()
+                .HasForeignKey(t => t.OrderPositionId);
         });
 
         modelBuilder.Entity<UserDocument>(e =>

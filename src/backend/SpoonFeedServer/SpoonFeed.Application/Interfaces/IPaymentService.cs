@@ -2,5 +2,7 @@ namespace SpoonFeed.Application.Interfaces;
 
 public interface IPaymentService
 {
-    Task<Result<bool>> ConfirmPaymentAsync(Guid orderId, CancellationToken ct);
+    Task<string> CreatePaymentIntentAsync(decimal amount, string currency, CancellationToken ct);
+    
+    Task<bool> ConfirmPaymentAsync(string paymentIntentId, CancellationToken ct);
 }

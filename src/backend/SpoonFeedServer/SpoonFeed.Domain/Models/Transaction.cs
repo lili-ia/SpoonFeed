@@ -22,13 +22,11 @@ public class Transaction : BaseEntity
     [Range(0, long.MaxValue, ErrorMessage = "Amount cannot be negative.")]
     public long Amount { get; set; }
     
-    [Required(ErrorMessage = "CurrencyId is required.")]
-    public Guid CurrencyId { get; set; }
-    
     /// <summary>
     /// Represents the currency used for the transaction.
     /// </summary>
-    public virtual Currency Currency { get; set; } = null!;
+    [Required(ErrorMessage = "Currency is required.")]
+    public string Currency { get; set; } = null!;
 
     /// <summary>
     /// Represents the current status of the transaction.
@@ -61,6 +59,13 @@ public class Transaction : BaseEntity
     /// </summary>
     public DateTime? ClosedAt { get; set; }
     
+    public Guid? OrderId { get; set; }
+    
+    public virtual Order? Order { get; set; }
+    
+    public Guid? OrderPositionId { get; set; }
+    
+    public virtual OrderPosition? OrderPosition { get; set; }
     public Guid? CustomerId { get; set; }
     
     public virtual Customer? Customer { get; set; }

@@ -40,11 +40,4 @@ public class AuthController : ControllerBase
         
         return result.ToActionResult();
     }
-
-    [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
-    {
-        // todo
-        throw new NotImplementedException();
-    }
 }

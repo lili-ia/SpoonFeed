@@ -5,10 +5,12 @@ using SpoonFeed.Application.Services;
 using SpoonFeed.Infrastructure.Services;
 using SpoonFeed.Persistence;
 using SpoonFeedServer.Extensions;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultDevelopment");
+
 
 builder.Services.AddDbContext<SpoonFeedDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -36,6 +38,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapControllers();
 app.UseHttpsRedirection();
 app.UseLoggerMiddleware();
 

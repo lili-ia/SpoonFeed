@@ -45,7 +45,7 @@ public class Order : BaseEntity
     
     /// <summary>
     /// Represents the total cost of the order.
-    /// Calculated as the sum of total of order items.
+    /// Calculated as the sum of total of order items + courier`s delivery fee
     /// </summary>
     public double Total { get; set; }
     

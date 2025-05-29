@@ -37,13 +37,11 @@ public class MenuItem : BaseEntity
     [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative.")]
     public double Price { get; set; }
     
-    public Guid CurrencyId { get; set; }
-    
     /// <summary>
     /// Represents the price's currency.
     /// </summary>
     [Required(ErrorMessage = "Currency is required.")]
-    public virtual Currency Currency { get; set; } = null!;
+    public virtual string Currency { get; set; } = null!;
     
     [Required]
     public Guid FoodFacilityId { get; set; }

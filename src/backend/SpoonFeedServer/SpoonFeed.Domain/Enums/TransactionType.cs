@@ -6,6 +6,10 @@ namespace SpoonFeed.Domain.Enums;
 public enum TransactionType
 {
     /// <summary>
+    /// Represents the customer's payment to the courier for the delivery
+    /// </summary>
+    DeliveryFee,
+    /// <summary>
     /// Represents the customer's payment for an order.
     /// </summary>
     CustomerOrder,

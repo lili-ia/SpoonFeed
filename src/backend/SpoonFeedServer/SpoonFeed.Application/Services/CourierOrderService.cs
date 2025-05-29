@@ -101,6 +101,7 @@ public class CourierOrderService : ICourierOrderService
         {
             case OrderResponseAction.Accept:
                 order.Status = OrderStatus.WaitingOrderItem;
+                // todo: create Pending Customer -> Courier Transaction
                 _logger.LogInformation("Courier {CourierId} accepted order {OrderId}", courierId, orderId);
                 break;
             case OrderResponseAction.Reject:

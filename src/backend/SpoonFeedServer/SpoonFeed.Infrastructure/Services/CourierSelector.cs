@@ -65,8 +65,8 @@ public class CourierSelector : ICourierSelector
 
         return couriers.FirstOrDefault();
     }
-
-    private  double GetDistance(double lat1, double lon1, double lat2, double lon2)
+    
+    private double GetDistance(double lat1, double lon1, double lat2, double lon2)
     {
         const double R = 6371e3; 
         double φ1 = lat1 * Math.PI / 180;
@@ -82,5 +82,4 @@ public class CourierSelector : ICourierSelector
 
         return R * c;
     }
-
 }

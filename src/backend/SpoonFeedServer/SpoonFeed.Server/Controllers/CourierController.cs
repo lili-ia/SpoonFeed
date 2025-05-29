@@ -14,20 +14,17 @@ namespace SpoonFeedServer.Controllers;
 public class CourierController : ControllerBase
 {
     private readonly ICourierService _courierService;
-    private ICourierOrderService _courierOrderService;
-    private ICustomerOrderService _customerOrderService;
+    private readonly ICourierOrderService _courierOrderService;
     private readonly IUserContextService _userContextService;
     
     public CourierController(
         ICourierService courierService, 
         IUserContextService userContextService, 
-        ICourierOrderService courierOrderService, 
-        ICustomerOrderService customerOrderService)
+        ICourierOrderService courierOrderService)
     {
         _courierService = courierService;
         _userContextService = userContextService;
         _courierOrderService = courierOrderService;
-        _customerOrderService = customerOrderService;
     }
     
     [HttpGet("status")]
