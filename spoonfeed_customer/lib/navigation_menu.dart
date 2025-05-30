@@ -6,16 +6,18 @@ import 'package:spoonfeed_customer/login_screen.dart';
 import 'package:spoonfeed_customer/main_screen.dart';
 import 'package:spoonfeed_customer/restaurants_screen.dart';
 
-class NavigatioMenu extends StatelessWidget {
-  const NavigatioMenu({
+class NavigationMenu extends StatelessWidget {
+  const NavigationMenu({
     super.key,
     required this.changeScreen,
     required this.changeCity,
     required this.cities,
+    required this.city,
   });
   final void Function(Widget) changeScreen;
   final void Function(String?) changeCity;
   final List<String> cities;
+  final String city;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -28,7 +30,9 @@ class NavigatioMenu extends StatelessWidget {
             children: [
               CustomButton(
                 onClick: () {
-                  changeScreen(MainScreen(changeScreen: changeScreen));
+                  changeScreen(
+                    MainScreen(changeScreen: changeScreen, currentCity: city),
+                  );
                 },
                 text: "Home",
               ),

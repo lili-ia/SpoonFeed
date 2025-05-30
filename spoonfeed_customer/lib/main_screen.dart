@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:spoonfeed_customer/custom_text.dart';
 import 'package:spoonfeed_customer/food_facilities_screen.dart';
-import 'package:spoonfeed_customer/footer.dart';
 import 'package:spoonfeed_customer/models/restaurant.dart';
-import 'package:spoonfeed_customer/navigation_menu.dart';
 import 'package:spoonfeed_customer/restaurant_button.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required this.changeScreen});
+  const MainScreen({
+    super.key,
+    required this.changeScreen,
+    required this.currentCity,
+  });
   final void Function(Widget) changeScreen;
-
-  List<String> getCities() {
-    return ["Kuiv", "Harkiv"];
-  }
+  final String currentCity;
 
   @override
   State<StatefulWidget> createState() {
@@ -54,25 +53,10 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  String? currentCity;
-
-  void changeCity(String? city) {
-    if (city != null) {
-      setState(() {
-        currentCity = city;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        NavigatioMenu(
-          changeScreen: widget.changeScreen,
-          cities: widget.getCities(),
-          changeCity: changeCity,
-        ),
         CustomText(
           text: "Food delivery right to your door!\nThe best food chains!",
         ),
@@ -106,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                                       FoodFacilitiesScreen(
                                         changeScreen: widget.changeScreen,
                                         restaurant: element,
-                                        city: currentCity!,
+                                        city: widget.currentCity,
                                       ),
                                     );
                                   },
@@ -119,7 +103,6 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
         ),
-        Footer(),
       ],
     );
   }
