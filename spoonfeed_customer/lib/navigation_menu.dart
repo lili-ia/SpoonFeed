@@ -13,16 +13,18 @@ class NavigationMenu extends StatelessWidget {
     required this.changeCity,
     required this.cities,
     required this.city,
+    required this.changeHeaderFooterVisible,
   });
   final void Function(Widget) changeScreen;
   final void Function(String?) changeCity;
   final List<String> cities;
   final String city;
+  final void Function(bool) changeHeaderFooterVisible;
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset("images/spoonfeed_logo.png"),
+        Image.asset("images/spoonfeed_logo.png", height: 100),
         Spacer(),
         Expanded(
           child: Row(
@@ -51,6 +53,7 @@ class NavigationMenu extends StatelessWidget {
               ),
               CustomButton(
                 onClick: () {
+                  changeHeaderFooterVisible(true);
                   changeScreen(LoginScreen());
                 },
                 text: "Login/Register",

@@ -5,6 +5,7 @@ import 'package:spoonfeed_customer/navigation_menu.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _MainLayoutState();
@@ -17,7 +18,7 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   Widget? _currentScreen;
-
+  bool autorization = false;
   void changeScreen(Widget screen) {
     setState(() {
       _currentScreen = screen;
@@ -34,27 +35,37 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
+  void changeHeaderFooterVisible(bool autorization) {
+    setState(() {
+      this.autorization = autorization;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    currentCity ??= widget.getCities()[0];
     _currentScreen ??= MainScreen(
       changeScreen: changeScreen,
-      currentCity: widget.getCities()[0],
+      currentCity: currentCity!,
     );
-    currentCity ??= widget.getCities()[0];
+
     return MaterialApp(
       home: Scaffold(
         body: Container(
           decoration: BoxDecoration(color: Color(0xFFEAB045)),
           child: Column(
             children: [
-              NavigationMenu(
-                cities: widget.getCities(),
-                changeCity: changeCity,
-                changeScreen: changeScreen,
-                city: currentCity!,
-              ),
+              autorization
+                  ? SizedBox()
+                  : NavigationMenu(
+                    cities: widget.getCities(),
+                    changeCity: changeCity,
+                    changeScreen: changeScreen,
+                    city: currentCity!,
+                    changeHeaderFooterVisible: changeHeaderFooterVisible,
+                  ),
               Expanded(child: _currentScreen!),
-              Footer(),
+              autorization ? SizedBox() : Footer(),
             ],
           ),
         ),
