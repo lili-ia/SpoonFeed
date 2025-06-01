@@ -1,27 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:spoonfeed_customer/cart_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spoonfeed_customer/city_service.dart';
 import 'package:spoonfeed_customer/custom_button.dart';
 import 'package:spoonfeed_customer/custom_dropdown_menu.dart';
-import 'package:spoonfeed_customer/login_screen.dart';
-import 'package:spoonfeed_customer/main_screen.dart';
-import 'package:spoonfeed_customer/restaurants_screen.dart';
 
 class NavigationMenu extends StatelessWidget {
-  const NavigationMenu({
-    super.key,
-    required this.changeScreen,
-    required this.changeCity,
-    required this.cities,
-    required this.city,
-    required this.changeHeaderFooterVisible,
-  });
-  final void Function(Widget) changeScreen;
-  final void Function(String?) changeCity;
-  final List<String> cities;
+  const NavigationMenu({super.key, required this.onChange, required this.city});
+  final Function(String) onChange;
   final String city;
-  final void Function(bool) changeHeaderFooterVisible;
   @override
   Widget build(BuildContext context) {
+    List<String> cities = CityService().getCities();
     return Row(
       children: [
         Image.asset("images/spoonfeed_logo.png", height: 100),
@@ -32,29 +21,30 @@ class NavigationMenu extends StatelessWidget {
             children: [
               CustomButton(
                 onClick: () {
-                  changeScreen(
-                    MainScreen(changeScreen: changeScreen, currentCity: city),
-                  );
+                  context.go('/');
                 },
                 text: "Home",
               ),
               CustomButton(
                 onClick: () {
-                  changeScreen(RestaurantsScreen());
+                  context.go('/restaurants');
                 },
                 text: "Restaurants",
               ),
-              CustomDropdownMenu(elements: cities, onChanged: changeCity),
+              CustomDropdownMenu(
+                elements: cities,
+                onChange: onChange,
+                currentElement: city,
+              ),
               IconButton(
                 onPressed: () {
-                  return changeScreen(CartScreen());
+                  context.go('/cart');
                 },
                 icon: Icon(Icons.shopping_cart, color: const Color(0xFFF24822)),
               ),
               CustomButton(
                 onClick: () {
-                  changeHeaderFooterVisible(true);
-                  changeScreen(LoginScreen());
+                  context.go('/login');
                 },
                 text: "Login/Register",
                 backgroundColor: Colors.black,

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spoonfeed_customer/api/restaurant_api.dart';
 import 'package:spoonfeed_customer/custom_text.dart';
-import 'package:spoonfeed_customer/food_facilities_screen.dart';
 import 'package:spoonfeed_customer/models/restaurant.dart';
 import 'package:spoonfeed_customer/restaurant_button.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({
-    super.key,
-    required this.changeScreen,
-    required this.currentCity,
-  });
-  final void Function(Widget) changeScreen;
+  const MainScreen({super.key, required this.currentCity});
+
   final String currentCity;
 
   @override
@@ -20,27 +17,7 @@ class MainScreen extends StatefulWidget {
 
   final int restaurantCountInRow = 6;
 
-  List<List<Restaurant>> getRestaurants() {
-    List<Restaurant> r = [
-      Restaurant(1, "BUFET"),
-      Restaurant(2, "ЯПІКО"),
-      Restaurant(3, "KFC"),
-      Restaurant(4, "PIZZA DAY"),
-      Restaurant(5, "BURGER KING"),
-      Restaurant(6, "McDonald’s"),
-      Restaurant(7, "BUFET"),
-      Restaurant(8, "ЯПІКО"),
-      Restaurant(9, "KFC"),
-      Restaurant(10, "PIZZA DAY"),
-      Restaurant(11, "BURGER KING"),
-      Restaurant(12, "McDonald’s"),
-      Restaurant(13, "BUFET"),
-      Restaurant(14, "ЯПІКО"),
-      Restaurant(15, "KFC"),
-      Restaurant(16, "PIZZA DAY"),
-      Restaurant(17, "BURGER KING"),
-      Restaurant(18, "McDonald’s"),
-    ];
+  List<List<Restaurant>> convertRestaurants(List<Restaurant> r) {
     List<List<Restaurant>> restaurants = [];
     for (var i = 0; i < r.length / restaurantCountInRow; i++) {
       restaurants.add([]);
@@ -53,6 +30,15 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  late Future<List<Restaurant>> restaurants;
+
+  @override
+  void initState() {
+    super.initState();
+
+    restaurants = RestaurantApi().getRestaurants(widget.currentCity);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -72,34 +58,41 @@ class _MainScreenState extends State<MainScreen> {
         ),
         Expanded(
           child: SingleChildScrollView(
-            child: Column(
-              children:
-                  widget.getRestaurants().map((List<Restaurant> restaurant) {
-                    return Container(
-                      padding: EdgeInsets.all(15),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children:
-                              restaurant.map((Restaurant element) {
-                                return RestaurantButton(
-                                  restaurant: element,
-                                  onClick: () {
-                                    widget.changeScreen(
-                                      FoodFacilitiesScreen(
-                                        changeScreen: widget.changeScreen,
-                                        restaurant: element,
-                                        city: widget.currentCity,
-                                      ),
+            child: FutureBuilder<List<Restaurant>>(
+              future: restaurants,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (!snapshot.hasData) {
+                  return CircularProgressIndicator();
+                }
+                List<List<Restaurant>> rest = widget.convertRestaurants(
+                  snapshot.data,
+                );
+                return Column(
+                  children:
+                      rest.map((List<Restaurant> restaurants) {
+                        return Container(
+                          padding: EdgeInsets.all(15),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children:
+                                  restaurants.map((Restaurant restaurant) {
+                                    return RestaurantButton(
+                                      restaurant: restaurant,
+                                      onClick: () {
+                                        context.go(
+                                          "/facilities/${restaurant.restaurantId}",
+                                        );
+                                      },
                                     );
-                                  },
-                                );
-                              }).toList(),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                                  }).toList(),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                );
+              },
             ),
           ),
         ),
