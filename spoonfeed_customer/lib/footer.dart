@@ -23,7 +23,6 @@ class Footer extends StatelessWidget {
                     "Terms and conditions",
                     "Privacy",
                     "Cookies",
-                    "Modern Slavery Statement",
                   ],
                 ),
                 FooterList(

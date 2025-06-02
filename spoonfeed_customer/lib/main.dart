@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spoonfeed_customer/api/customer_api.dart';
 import 'package:spoonfeed_customer/auth_layout.dart';
@@ -6,6 +7,8 @@ import 'package:spoonfeed_customer/city_service.dart';
 import 'package:spoonfeed_customer/food_facilities_screen.dart';
 import 'package:spoonfeed_customer/auth_screen.dart';
 import 'package:spoonfeed_customer/main_layout.dart';
+import 'package:spoonfeed_customer/providers/cart_provider.dart';
+import 'package:spoonfeed_customer/cart_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spoonfeed_customer/main_screen.dart';
 import 'package:spoonfeed_customer/menu_sceen.dart';
@@ -75,7 +78,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(routerConfig: _createRouter());
+    return ChangeNotifierProvider(
+      create: (context) => CartProvider(),
+      child: MaterialApp.router(routerConfig: _createRouter()),
+    );
   }
 
   GoRouter _createRouter() {
@@ -134,6 +140,21 @@ class _MyAppState extends State<MyApp> {
                 restaurantId: restaurantId,
                 currentCity: city!,
               ),
+              userName: userName,
+              logout: updateUser,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/cart',
+          builder: (context, state) {
+            if (city == null) {
+              return Scaffold();
+            }
+            return MainLayout(
+              currentCity: city!,
+              onChangeCity: updateCity,
+              widget: CartScreen(userName: userName), // Pass userName here
               userName: userName,
               logout: updateUser,
             );
