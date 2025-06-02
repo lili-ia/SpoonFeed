@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spoonfeed_customer/api/customer_api.dart';
+import 'package:spoonfeed_customer/auth_layout.dart';
 import 'package:spoonfeed_customer/city_service.dart';
 import 'package:spoonfeed_customer/food_facilities_screen.dart';
+import 'package:spoonfeed_customer/auth_screen.dart';
 import 'package:spoonfeed_customer/main_layout.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spoonfeed_customer/main_screen.dart';
@@ -22,10 +25,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String? city;
+  String? userName;
 
   @override
   void initState() {
     super.initState();
+    loadUser();
     loadCity();
   }
 
@@ -34,11 +39,37 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 
+  void loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString("user_id");
+    if (userId == null) {
+      return;
+    }
+    userName = await CustomerApi().getName(int.parse(userId));
+    setState(() {});
+  }
+
   void updateCity(String newCity) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('city', newCity);
     setState(() {
       city = newCity;
+    });
+  }
+
+  void updateUser(int? userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (userId == null) {
+      prefs.remove("user_id");
+      setState(() {
+        userName = null;
+      });
+      return;
+    }
+    prefs.setString("user_id", userId.toString());
+    String name = await CustomerApi().getName(userId);
+    setState(() {
+      userName = name;
     });
   }
 
@@ -60,6 +91,8 @@ class _MyAppState extends State<MyApp> {
               currentCity: city!,
               onChangeCity: updateCity,
               widget: MainScreen(currentCity: city!),
+              userName: userName,
+              logout: updateUser,
             );
           },
         ),
@@ -76,6 +109,8 @@ class _MyAppState extends State<MyApp> {
               currentCity: city!,
               onChangeCity: updateCity,
               widget: FoodFacilitiesScreen(restaurantId: restaurantId),
+              userName: userName,
+              logout: updateUser,
             );
           },
         ),
@@ -99,7 +134,18 @@ class _MyAppState extends State<MyApp> {
                 restaurantId: restaurantId,
                 currentCity: city!,
               ),
+              userName: userName,
+              logout: updateUser,
             );
+          },
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (context, state) {
+            if (city == null) {
+              return Scaffold();
+            }
+            return AuthLayout(widget: AuthScreen(updateUser: updateUser));
           },
         ),
       ],

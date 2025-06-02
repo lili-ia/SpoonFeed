@@ -6,12 +6,16 @@ class MainLayout extends StatefulWidget {
   final Widget widget;
   final String currentCity;
   final Function(String) onChangeCity;
+  final String? userName;
+  final Function(int?) logout;
 
   const MainLayout({
     super.key,
     required this.widget,
     required this.currentCity,
     required this.onChangeCity,
+    this.userName,
+    required this.logout,
   });
 
   @override
@@ -29,6 +33,8 @@ class _MainLayoutState extends State<MainLayout> {
             NavigationMenu(
               onChange: widget.onChangeCity,
               city: widget.currentCity,
+              userName: widget.userName,
+              logout: widget.logout,
             ),
             Expanded(child: widget.widget),
             Footer(),
