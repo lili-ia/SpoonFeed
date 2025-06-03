@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:spoonfeed_customer/active_order_screen.dart';
 import 'package:spoonfeed_customer/api/customer_api.dart';
 import 'package:spoonfeed_customer/auth_layout.dart';
 import 'package:spoonfeed_customer/city_service.dart';
@@ -14,7 +16,20 @@ import 'package:spoonfeed_customer/main_screen.dart';
 import 'package:spoonfeed_customer/menu_sceen.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyDllxB5rPSshYFAYpBpqHNSyuNBzr1dVic",
+      authDomain: "spoonfeed-4203b.firebaseapp.com",
+      projectId: "spoonfeed-4203b",
+      storageBucket: "spoonfeed-4203b.firebasestorage.app",
+      messagingSenderId: "341221018921",
+      appId: "1:341221018921:web:0a3bb9068bc207b31cfb38",
+      measurementId: "G-9LWG03G1V4",
+    ),
+  );
+
   setUrlStrategy(PathUrlStrategy());
   runApp(MyApp());
 }
@@ -29,6 +44,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String? city;
   String? userName;
+  int? userId;
 
   @override
   void initState() {
@@ -44,11 +60,15 @@ class _MyAppState extends State<MyApp> {
 
   void loadUser() async {
     final prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString("user_id");
-    if (userId == null) {
+    String? user = prefs.getString("user_id");
+    if (user == null) {
       return;
     }
-    userName = await CustomerApi().getName(int.parse(userId));
+    setState(() {
+      userId = int.parse(user);
+    });
+
+    userName = await CustomerApi().getName(userId!);
     setState(() {});
   }
 
@@ -103,6 +123,21 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         GoRoute(
+          path: '/restaurants',
+          builder: (context, state) {
+            if (city == null) {
+              return Scaffold();
+            }
+            return MainLayout(
+              currentCity: city!,
+              onChangeCity: updateCity,
+              widget: MainScreen(currentCity: city!),
+              userName: userName,
+              logout: updateUser,
+            );
+          },
+        ),
+        GoRoute(
           path: '/facilities/:restaurant_id',
           builder: (context, state) {
             if (city == null) {
@@ -121,7 +156,7 @@ class _MyAppState extends State<MyApp> {
           },
         ),
         GoRoute(
-          path: '/menu/:restaurant_id/:facility_id',
+          path: '/menu/:restaurant_id/:facilities_id',
           builder: (context, state) {
             if (city == null) {
               return Scaffold();
@@ -129,17 +164,32 @@ class _MyAppState extends State<MyApp> {
             final int restaurantId = int.parse(
               state.pathParameters['restaurant_id']!,
             );
-            final int facilityId = int.parse(
-              state.pathParameters['facility_id']!,
+            final int facilitiesId = int.parse(
+              state.pathParameters['facilities_id']!,
             );
             return MainLayout(
               currentCity: city!,
               onChangeCity: updateCity,
               widget: MenuScreen(
-                facilityId: facilityId,
                 restaurantId: restaurantId,
+                facilityId: facilitiesId,
                 currentCity: city!,
               ),
+              userName: userName,
+              logout: updateUser,
+            );
+          },
+        ),
+        GoRoute(
+          path: '/activeOrder',
+          builder: (context, state) {
+            if (city == null || userId == null) {
+              return Scaffold();
+            }
+            return MainLayout(
+              currentCity: city!,
+              onChangeCity: updateCity,
+              widget: ActiveOrderScreen(userId: userId!),
               userName: userName,
               logout: updateUser,
             );

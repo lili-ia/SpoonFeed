@@ -81,7 +81,8 @@ class DishContainer extends StatelessWidget {
               ),
             ),
             Image.asset(
-              "images/dish_images/${dish.dishId}.png",
+              "images/dish_images/${dish.dishId}.jpg",
+              height: 200,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   width: 80,
@@ -90,7 +91,11 @@ class DishContainer extends StatelessWidget {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.restaurant, size: 30, color: Colors.grey),
+                  child: const Icon(
+                    Icons.restaurant,
+                    size: 30,
+                    color: Colors.grey,
+                  ),
                 );
               },
             ),

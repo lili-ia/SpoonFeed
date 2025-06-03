@@ -36,7 +36,7 @@ class CartItemWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.asset(
-              "images/dish_images/${cartItem.dish.dishId}.png",
+              "images/dish_images/${cartItem.dish.dishId}.jpg",
               width: 60,
               height: 60,
               fit: BoxFit.cover,
@@ -48,14 +48,18 @@ class CartItemWidget extends StatelessWidget {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.restaurant, size: 25, color: Colors.grey),
+                  child: const Icon(
+                    Icons.restaurant,
+                    size: 25,
+                    color: Colors.grey,
+                  ),
                 );
               },
             ),
           ),
-          
+
           const SizedBox(width: 15),
-          
+
           // Dish Info
           Expanded(
             child: Column(
@@ -71,10 +75,7 @@ class CartItemWidget extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   cartItem.dish.description,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -89,7 +90,7 @@ class CartItemWidget extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Quantity Controls
           Row(
             children: [
@@ -105,12 +106,19 @@ class CartItemWidget extends StatelessWidget {
                     color: Colors.orange[300],
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: const Icon(Icons.remove, color: Colors.white, size: 16),
+                  child: const Icon(
+                    Icons.remove,
+                    color: Colors.white,
+                    size: 16,
+                  ),
                 ),
               ),
-              
+
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 8,
+                ),
                 child: Text(
                   cartItem.quantity.toString(),
                   style: const TextStyle(
@@ -119,7 +127,7 @@ class CartItemWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               GestureDetector(
                 onTap: () {
                   onQuantityChanged(cartItem.quantity + 1);
@@ -135,7 +143,7 @@ class CartItemWidget extends StatelessWidget {
               ),
             ],
           ),
-          
+
           // Remove Button
           GestureDetector(
             onTap: onRemove,

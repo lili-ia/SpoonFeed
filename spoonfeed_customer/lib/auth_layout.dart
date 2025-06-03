@@ -15,7 +15,7 @@ class _AuthLayoutState extends State<AuthLayout> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(color: Colors.white),
-        child: Expanded(child: widget.widget),
+        child: widget.widget,
       ),
     );
   }

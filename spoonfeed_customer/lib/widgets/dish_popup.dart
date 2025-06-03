@@ -13,7 +13,8 @@ class DishPopup extends StatefulWidget {
   State<DishPopup> createState() => _DishPopupState();
 }
 
-class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMixin {
+class _DishPopupState extends State<DishPopup>
+    with SingleTickerProviderStateMixin {
   int quantity = 1;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -25,13 +26,9 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
     _animationController.forward();
   }
 
@@ -56,9 +53,12 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
   }
 
   void _addToCart() {
-    Provider.of<CartProvider>(context, listen: false).addItem(widget.dish, quantity);
+    Provider.of<CartProvider>(
+      context,
+      listen: false,
+    ).addItem(widget.dish, quantity);
     Navigator.of(context).pop();
-    
+
     // Show snackbar confirmation
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -115,7 +115,7 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                     ],
                   ),
                   const SizedBox(height: 10),
-                  
+
                   // Dish Image and Info
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,19 +140,23 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                               textAlign: TextAlign.left,
                             ),
                             const SizedBox(height: 15),
-                            
+
                             // Price Section
                             Row(
                               children: [
                                 CustomText(
-                                  text: "${widget.dish.priceWithDiscount.toStringAsFixed(2)}₴",
+                                  text:
+                                      "${widget.dish.priceWithDiscount.toStringAsFixed(2)}₴",
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
                                 ),
                                 const SizedBox(width: 10),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(5),
@@ -166,7 +170,8 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                                 ),
                                 const SizedBox(width: 10),
                                 CustomText(
-                                  text: "${widget.dish.price.toStringAsFixed(2)}₴",
+                                  text:
+                                      "${widget.dish.price.toStringAsFixed(2)}₴",
                                   textDecoration: TextDecoration.lineThrough,
                                   fontSize: 18,
                                   color: Colors.grey,
@@ -176,13 +181,13 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                           ],
                         ),
                       ),
-                      
+
                       // Dish Image
                       const SizedBox(width: 15),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(15),
                         child: Image.asset(
-                          "images/dish_images/${widget.dish.dishId}.png",
+                          "images/dish_images/${widget.dish.dishId}.jpg",
                           width: 120,
                           height: 120,
                           fit: BoxFit.cover,
@@ -194,16 +199,20 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                                 color: Colors.grey[300],
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                              child: const Icon(Icons.restaurant, size: 40, color: Colors.grey),
+                              child: const Icon(
+                                Icons.restaurant,
+                                size: 40,
+                                color: Colors.grey,
+                              ),
                             );
                           },
                         ),
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 25),
-                  
+
                   // Quantity Controls and Add to Cart
                   Row(
                     children: [
@@ -223,11 +232,17 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                                   color: Colors.orange[300],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.remove, color: Colors.white),
+                                child: const Icon(
+                                  Icons.remove,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
                               child: Text(
                                 quantity.toString(),
                                 style: const TextStyle(
@@ -244,15 +259,18 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                                   color: Colors.orange[300],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.add, color: Colors.white),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(width: 15),
-                      
+
                       // Add to Cart Button
                       Expanded(
                         child: GestureDetector(
@@ -266,7 +284,10 @@ class _DishPopupState extends State<DishPopup> with SingleTickerProviderStateMix
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.shopping_cart, color: Colors.white),
+                                const Icon(
+                                  Icons.shopping_cart,
+                                  color: Colors.white,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   "${totalPrice.toStringAsFixed(2)}₴",

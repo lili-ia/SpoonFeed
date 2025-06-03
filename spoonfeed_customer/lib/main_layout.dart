@@ -49,7 +49,7 @@ class _MainLayoutState extends State<MainLayout> {
           if (cart.isEmpty) {
             return const SizedBox.shrink();
           }
-          
+
           return FloatingActionButton.extended(
             onPressed: () {
               context.go('/cart');

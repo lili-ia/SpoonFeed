@@ -52,7 +52,7 @@ class NavigationMenu extends StatelessWidget {
               ),
               CustomButton(
                 onClick: () {
-                  context.go(userName == null ? '/login' : "/activeOrders");
+                  context.go(userName == null ? '/login' : "/activeOrder");
                 },
                 text: userName == null ? "Login/Register" : userName!,
                 backgroundColor: Colors.black,
