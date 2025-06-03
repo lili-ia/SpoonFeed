@@ -38,22 +38,22 @@ class _CartScreenState extends State<CartScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       recentAddresses = prefs.getStringList('recent_addresses') ?? [];
+      selectedLocation =
+          prefs.getString('selected_address') ?? "Choose your location...";
     });
   }
 
   Future<void> _saveRecentAddress(String address) async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // Remove if already exists to avoid duplicates
+
     recentAddresses.remove(address);
-    // Add to beginning
     recentAddresses.insert(0, address);
-    // Keep only last 5 addresses
     if (recentAddresses.length > 5) {
       recentAddresses = recentAddresses.take(5).toList();
     }
-    
+
     await prefs.setStringList('recent_addresses', recentAddresses);
+    await prefs.setString('selected_address', address);
     setState(() {});
   }
 

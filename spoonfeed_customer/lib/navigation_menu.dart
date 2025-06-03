@@ -36,6 +36,7 @@ class NavigationMenu extends StatelessWidget {
               CustomButton(
                 onClick: () {
                   context.go('/restaurants');
+                  
                 },
                 text: "Restaurants",
               ),
