@@ -1,9 +1,11 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SpoonFeed.Application.DTOs.Auth;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeed.Domain.Enums;
 using SpoonFeed.Domain.Models;
+using SpoonFeed.Domain.Owned;
 using SpoonFeed.Persistence;
 
 namespace SpoonFeed.Application.Services;
@@ -14,20 +16,31 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IPasswordService _passwordService;
     private readonly IJwtService _jwtService;
+    private readonly IMapper _mapper;
     
     public AuthService(
         SpoonFeedDbContext db, 
         ILogger<AuthService> logger, 
         IPasswordService passwordService, 
-        IJwtService jwtService)
+        IJwtService jwtService, IMapper mapper)
     {
         _db = db;
         _logger = logger;
         _passwordService = passwordService;
         _jwtService = jwtService;
+        _mapper = mapper;
     }
     
-    // todo: implement refresh tokens
+    /// <summary>
+    /// Attempts to authenticate a user with the provided login credentials.
+    /// </summary>
+    /// <param name="request">The login request containing the user's email and password.</param>
+    /// <param name="ct">The cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing an <see cref="AuthResponse"/> on success, 
+    /// or an appropriate error result if authentication fails due to incorrect credentials, 
+    /// missing user, unassigned role, or server error.
+    /// </returns>
     public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request, CancellationToken ct)
     {
         var user = await _db.UserIdentities
@@ -43,7 +56,7 @@ public class AuthService : IAuthService
 
         if (!isPasswordValid)
         {
-            return Result<AuthResponse>.FailureResult("Invalid login attempt.", ErrorType.Forbidden);
+            return Result<AuthResponse>.FailureResult("Invalid login attempt.", ErrorType.Unauthorized);
         }
         
         Role? role = null;
@@ -75,14 +88,23 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<Result<AuthResponse>> RegisterAsync(RegisterUserRequest request, CancellationToken ct)
+    /// <summary>
+    /// Registers a new user identity with the specified credentials and user type.
+    /// </summary>
+    /// <param name="request">The registration request containing basic user information and desired role.</param>
+    /// <param name="ct">A cancellation token to cancel the operation.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing an <see cref="AuthResponse"/> with a JWT access token on success, 
+    /// or an appropriate error result if the user already exists, registration fails, or a server error occurs.
+    /// </returns>
+    public async Task<Result<AuthResponse>> RegisterUserIdentityAsync(RegisterUserRequest request, CancellationToken ct)
     {
         var userExists = await _db.UserIdentities
             .AnyAsync(u => u.Email == request.Email, cancellationToken: ct);
 
         if (userExists)
         {
-            return Result<AuthResponse>.FailureResult($"User with email {request.Email} already exists.", ErrorType.Forbidden);
+            return Result<AuthResponse>.FailureResult($"User with email {request.Email} already exists.", ErrorType.Conflict);
         }
 
         var newUser = new UserIdentity
@@ -123,15 +145,8 @@ public class AuthService : IAuthService
                 {
                     await _db.FoodChains.AddAsync(new FoodChain
                     {
-                        UserIdentityId = newUser.Id
-                    }, ct);
-                    break;
-                }
-                case Role.FoodFacility:
-                {
-                    await _db.FoodFacilities.AddAsync(new FoodFacility
-                    {
-                        UserIdentityId = newUser.Id
+                        UserIdentityId = newUser.Id,
+                        Status = FoodChainStatus.PendingApproval
                     }, ct);
                     break;
                 }
@@ -155,4 +170,68 @@ public class AuthService : IAuthService
                 "Internal error occured while trying to register a user. Please, try later", ErrorType.ServerError);
         }
     }
+
+    public async Task<Result<FoodFacilityRegisterResponse>> RegisterFoodFacilityAsync(Guid foodChainId, FoodFacilityRegisterRequest request, CancellationToken ct)
+    {
+        var foodChain = await _db.FoodChains
+            .FirstOrDefaultAsync(fc => fc.UserIdentityId == foodChainId, cancellationToken: ct);
+
+        if (foodChain == null)
+        {
+            return Result<FoodFacilityRegisterResponse>.FailureResult("Food chain not found", ErrorType.NotFound);
+        }
+
+        if (foodChain.Status != FoodChainStatus.Private && foodChain.Status != FoodChainStatus.Public)
+        {
+            return Result<FoodFacilityRegisterResponse>.FailureResult("You are not allowed to create a food facility", ErrorType.Forbidden);
+        }
+
+        var password = Guid.NewGuid().ToString().Substring(0, 8);
+        
+        var foodFacilityIdentity = new UserIdentity
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            PasswordHash = _passwordService.HashPassword(password),
+            PhoneNumber = request.PhoneNumber
+        };
+        
+        var foodFacility = new FoodFacility
+        {
+            UserIdentityId = foodFacilityIdentity.Id,
+            Address = _mapper.Map<Address>(request.AddressDto),
+            Name = request.Name,
+            WorkingHours = request.WorkingHours ?? new WorkingHours(),
+            FoodChainId = foodChainId 
+        };
+
+        try
+        {
+            using var tx = await _db.Database.BeginTransactionAsync(ct);
+
+            await _db.UserIdentities.AddAsync(foodFacilityIdentity, ct);
+            await _db.FoodFacilities.AddAsync(foodFacility, ct);
+            await _db.SaveChangesAsync(ct);
+
+            await tx.CommitAsync(ct);
+
+            var response = new FoodFacilityRegisterResponse
+            {
+                Password = password
+            };
+
+            return Result<FoodFacilityRegisterResponse>.SuccessResult(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            
+            return Result<FoodFacilityRegisterResponse>.FailureResult(
+                "Internal error occured while trying to register a food facility. Please, try later", ErrorType.ServerError);
+        }
+    }
+
+   
 }

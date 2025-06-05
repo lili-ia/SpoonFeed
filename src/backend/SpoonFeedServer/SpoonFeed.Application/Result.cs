@@ -38,4 +38,5 @@ public enum ErrorType
     Unknown, 
     Unauthorized, 
     Forbidden,
+    Conflict
 }

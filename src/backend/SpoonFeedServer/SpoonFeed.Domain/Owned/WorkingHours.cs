@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace SpoonFeed.Domain.Owned;
@@ -6,8 +7,19 @@ namespace SpoonFeed.Domain.Owned;
 /// Represents a range of working hours.
 /// </summary>
 [Owned]
-public class WorkingHours
+public class WorkingHours : IValidatableObject
 {
-    TimeOnly Start { get; set; }
-    TimeOnly End { get; set; }
+    [Required] 
+    public TimeOnly Start { get; set; } = TimeOnly.MinValue;
+
+    [Required]
+    public TimeOnly End { get; set; } = TimeOnly.MaxValue;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Start >= End)
+        {
+            yield return new ValidationResult("Start time must be earlier than end time.", new[] { nameof(Start), nameof(End) });
+        }
+    }
 }
