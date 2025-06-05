@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SpoonFeed.Application.DTOs.Shared;
 using SpoonFeed.Domain.Enums;
 
 namespace SpoonFeed.Application.DTOs.Order;

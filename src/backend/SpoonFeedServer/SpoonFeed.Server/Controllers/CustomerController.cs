@@ -27,7 +27,7 @@ public class CustomerController : ControllerBase
     }
     
     [HttpPost("orders")]
-    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto, CancellationToken ct)
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto, CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -47,7 +47,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("orders")]
-    public async Task<IActionResult> GetOrdersHistory(CancellationToken ct)
+    public async Task<IActionResult> GetOrdersHistory(CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -62,7 +62,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("orders/{orderId}")]
-    public async Task<IActionResult> GetOrderDetails(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> GetOrderDetails(Guid orderId, CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -77,7 +77,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("orders/{orderId}/status")]
-    public async Task<IActionResult> GetOrderStatus(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> GetOrderStatus(Guid orderId, CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -92,13 +92,13 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("orders/{orderId}/cancel")]
-    public async Task<IActionResult> CancelOrder(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> CancelOrder(Guid orderId, CancellationToken ct = default)
     {
         return Ok();
     }
 
     [HttpGet("cart")]
-    public async Task<IActionResult> GetCart(CancellationToken ct)
+    public async Task<IActionResult> GetCart(CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -113,7 +113,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("cart/add")]
-    public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request, CancellationToken ct)
+    public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request, CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -128,7 +128,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("cart/remove")]
-    public async Task<IActionResult> RemoveFromCart([FromBody] RemoveFromCartRequest request, CancellationToken ct)
+    public async Task<IActionResult> RemoveFromCart([FromBody] RemoveFromCartRequest request, CancellationToken ct = default)
     {
         var customerIdResult = TryGetCustomerId(out var customerId);
         
@@ -143,13 +143,13 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("orders/{orderId}/pay")]
-    public async Task<IActionResult> PayForOrder(Guid orderId, CancellationToken ct)
+    public async Task<IActionResult> PayForOrder(Guid orderId, CancellationToken ct = default)
     {
         return Ok();
     }
 
     [HttpGet("profile")]
-    public async Task<IActionResult> GetProfile(CancellationToken ct)
+    public async Task<IActionResult> GetProfile(CancellationToken ct = default)
     {
         return Ok();
     }

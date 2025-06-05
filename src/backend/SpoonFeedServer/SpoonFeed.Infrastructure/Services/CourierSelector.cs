@@ -42,14 +42,14 @@ public class CourierSelector : ICourierSelector
         {
             double minDistance = foodFacilities.Select(ff =>
                 {
-                    if (ff.Longitude is null && ff.Latitude is null)
+                    if (ff.Address.Longitude is null && ff.Address.Latitude is null)
                     {
                         return double.MaxValue;
                     }
 
                     return GetDistance(
                         courier.CurrentLatitude!.Value, courier.CurrentLongitude!.Value,
-                        ff.Latitude!.Value, ff.Longitude!.Value);
+                        ff.Address.Latitude!.Value, ff.Address.Longitude!.Value);
 
                 })
                 .Min();
