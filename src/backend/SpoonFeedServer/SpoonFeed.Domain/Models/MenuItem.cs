@@ -38,10 +38,10 @@ public class MenuItem : BaseEntity
     public double Price { get; set; }
     
     /// <summary>
-    /// Represents the price's currency.
+    /// Represents the price's currency code.
     /// </summary>
-    [Required(ErrorMessage = "Currency is required.")]
-    public virtual string Currency { get; set; } = null!;
+    [Required(ErrorMessage = "CurrencyCode is required.")]
+    public CurrencyCode CurrencyCode { get; set; } 
     
     [Required]
     public Guid FoodFacilityId { get; set; }

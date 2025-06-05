@@ -99,6 +99,10 @@ public class SpoonFeedDbContext : DbContext
 
         modelBuilder.Entity<FoodFacility>(e =>
         {
+            e.OwnsOne(ff => ff.Address);
+            
+            e.OwnsOne(ff => ff.WorkingHours);
+            
             e.HasKey(ff => ff.UserIdentityId);
 
             e.HasOne(ff => ff.UserIdentity)

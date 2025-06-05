@@ -49,7 +49,7 @@ public class FoodFacility
     /// Represents the average score of food facility reviews.
     /// Calculated by the database.
     /// </summary>
-    public double AverageScore { get; set; } 
+    public double AverageScore { get; set; } = 0;
     
     [Required(ErrorMessage = "FoodChainId is required.")]
     public Guid FoodChainId { get; set; }
@@ -58,20 +58,6 @@ public class FoodFacility
     /// Represents the owner food chain.
     /// </summary>
     public virtual FoodChain FoodChain { get; set; } = null!;
-    
-    /// <summary>
-    /// Represents food facility`s latitude.
-    /// Populated via external API.
-    /// Isn`t stored in database.
-    /// </summary>
-    public double? Latitude { get; set; }
-    
-    /// <summary>
-    /// Represents food facility`s longitude.
-    /// Populated via external API.
-    /// Isn`t stored in database.
-    /// </summary>
-    public double? Longitude { get; set; }
     
     public virtual IList<MenuItem> MenuItems { get; set; } = [];
     

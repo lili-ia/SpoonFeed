@@ -9,21 +9,19 @@ namespace SpoonFeed.Domain.Owned;
 [Owned]
 public class Address
 {
-    [Required]
-    [MaxLength(255)]
-    public string Street { get; set; }
+    [Required] [MaxLength(255)] public string Street { get; set; } = "";
 
     [Required]
     [MaxLength(100)]
-    public string City { get; set; }
+    public string City { get; set; } = "";
 
     [Required]
     [MaxLength(100)]
-    public string StateOrRegion { get; set; }
+    public string StateOrRegion { get; set; } = "";
 
     [Required]
     [MaxLength(20)]
-    public string PostalCode { get; set; }
+    public string PostalCode { get; set; } = "";
 
     public double? Latitude { get; set; }
     
