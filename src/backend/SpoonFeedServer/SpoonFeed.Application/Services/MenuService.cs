@@ -18,14 +18,13 @@ public class MenuService : IMenuService
         _logger = logger;
     }
 
-    public async Task<Result<MenuItemResponse>> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<Result<MenuItemResponse>> GetByIdAsync(Guid itemId, Guid facilityId, CancellationToken ct)
     {
         var menuItem = await _dbContext.MenuItems
-            .Include(x => x.Currency)
             .Include(x => x.FoodFacility)
             .Include(x => x.MenuItemCategory)
             .Include(x => x.Image)
-            .FirstOrDefaultAsync(x => x.Id == id, ct);
+            .FirstOrDefaultAsync(x => x.Id == itemId && x.FoodFacilityId == facilityId, ct);
         if (menuItem == null)
         {
             return Result<MenuItemResponse>.FailureResult("Menu item does not exist.");
@@ -37,8 +36,7 @@ public class MenuService : IMenuService
             Ingredients: menuItem.Ingredients,
             Status: menuItem.Status,
             Price: menuItem.Price,
-            CurrencyId: menuItem.CurrencyId,
-            CurrencyCode: menuItem.Currency.Code,
+            CurrencyCode: menuItem.CurrencyCode,
             FoodFacilityId: menuItem.FoodFacilityId,
             FoodFacilityName: menuItem.FoodFacility.Name,
             MenuItemCategoryId: menuItem.MenuItemCategoryId,
@@ -56,7 +54,6 @@ public class MenuService : IMenuService
     {
         var menuItems = await _dbContext.MenuItems
             .Where(x => x.FoodFacilityId == foodFacilityId)
-            .Include(x => x.Currency)
             .Include(x => x.FoodFacility)
             .Include(x => x.MenuItemCategory)
             .Include(x => x.Image)
@@ -68,8 +65,7 @@ public class MenuService : IMenuService
             Ingredients: mi.Ingredients,
             Status: mi.Status,
             Price: mi.Price,
-            CurrencyId: mi.CurrencyId,
-            CurrencyCode: mi.Currency.Code,
+            CurrencyCode: mi.CurrencyCode,
             FoodFacilityId: mi.FoodFacilityId,
             FoodFacilityName: mi.FoodFacility.Name,
             MenuItemCategoryId: mi.MenuItemCategoryId,
@@ -82,15 +78,15 @@ public class MenuService : IMenuService
         return Result<IEnumerable<MenuItemResponse>>.SuccessResult(response);
     }
 
-    public async Task<Result<Guid>> CreateAsync(MenuItemCreateRequest request, CancellationToken ct)
+    public async Task<Result<Guid>> CreateAsync(Guid foodFacilityId, MenuItemCreateRequest request, CancellationToken ct)
     {
         var item = new MenuItem()
         {
             Name = request.Name,
             Ingredients = request.Ingredients,
             Price = request.Price,
-            CurrencyId = request.CurrencyId,
-            FoodFacilityId = request.FoodFacilityId,
+            CurrencyCode = request.CurrencyCode,
+            FoodFacilityId = foodFacilityId,
             MenuItemCategoryId = request.MenuItemCategoryId,
             Weight = request.Weight,
             ImageId = request.ImageId
@@ -109,7 +105,7 @@ public class MenuService : IMenuService
         }
     }
 
-    public async Task<Result<bool>> UpdateAsync(MenuItemUpdateRequest request, CancellationToken ct)
+    public async Task<Result<bool>> UpdateAsync(Guid foodFacilityId, MenuItemUpdateRequest request, CancellationToken ct)
     {
         var item = await _dbContext.MenuItems.FindAsync([request.Id], ct);
         if (item == null)
@@ -121,7 +117,7 @@ public class MenuService : IMenuService
         item.Ingredients = request.Ingredients;
         item.Status = request.Status;
         item.Price = request.Price;
-        item.CurrencyId = request.CurrencyId;
+        item.CurrencyCode = request.CurrencyCode;
         item.FoodFacilityId = request.FoodFacilityId;
         item.MenuItemCategoryId = request.MenuItemCategoryId;
         item.Weight = request.Weight;
@@ -139,7 +135,7 @@ public class MenuService : IMenuService
         }
     }
 
-    public async Task<Result<bool>> DeleteAsync(Guid id, CancellationToken ct)
+    public async Task<Result<bool>> DeleteAsync(Guid foodFacilityId, Guid id, CancellationToken ct)
     {
         var item = await _dbContext.MenuItems.FindAsync([id], ct);
         if (item == null)
@@ -161,9 +157,34 @@ public class MenuService : IMenuService
         }
     }
 
-    public async Task<Result<bool>> ExistsAsync(Guid id, CancellationToken ct)
+    public async Task<Result<bool>> ExistsAsync(Guid itemId, CancellationToken ct)
     {
-        var exists = await _dbContext.MenuItems.AnyAsync(x => x.Id == id, ct);
+        var exists = await _dbContext.MenuItems.AnyAsync(x => x.Id == itemId, ct);
         return Result<bool>.SuccessResult(exists);
+    }
+
+    public async Task<Result<bool>> CreateMenuItemCategoryAsync(CreateItemCategoryRequest request, Guid foodFacilityId, CancellationToken ct)
+    {
+        var category = new MenuItemCategory
+        {
+            Id = Guid.NewGuid(),
+            Name = request.Name,
+            FoodFacilityId = foodFacilityId
+        };
+
+        try
+        {
+            await _dbContext.MenuItemCategories.AddAsync(category, ct);
+            await _dbContext.SaveChangesAsync(ct);
+            
+            return Result<bool>.SuccessResult(true);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error occurred in {Method}", nameof(CreateAsync));
+            
+            return Result<bool>.FailureResult(
+                "An internal error occured while trying to create a menu item category.", ErrorType.ServerError);
+        }
     }
 }

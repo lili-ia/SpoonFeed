@@ -16,8 +16,8 @@ public record MenuItemUpdateRequest(
     [Required(ErrorMessage = "Price is required.")]
     [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative.")]
     double Price,
-    [Required(ErrorMessage = "CurrencyId is required.")]
-    Guid CurrencyId,
+    [Required(ErrorMessage = "CurrencyCode is required.")]
+    CurrencyCode CurrencyCode,
     [Required(ErrorMessage = "FoodFacilityId is required.")]
     Guid FoodFacilityId,
     Guid? MenuItemCategoryId,
@@ -26,4 +26,4 @@ public record MenuItemUpdateRequest(
     int Weight,
     [Required(ErrorMessage = "ImageId is required.")]
     Guid ImageId
-) : MenuItemCreateRequest(Name, Ingredients, Status, Price, CurrencyId, FoodFacilityId, MenuItemCategoryId, Weight, ImageId);
+) : MenuItemCreateRequest(Name, Ingredients, Status, Price, CurrencyCode, MenuItemCategoryId, Weight, ImageId);

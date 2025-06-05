@@ -12,9 +12,7 @@ public record MenuItemCreateRequest(
     [Required, Range(0, double.MaxValue)]
     double Price,
     [Required]
-    Guid CurrencyId,
-    [Required]
-    Guid FoodFacilityId,
+    CurrencyCode CurrencyCode,
     Guid? MenuItemCategoryId,
     [Required, Range(0, int.MaxValue)]
     int Weight,
