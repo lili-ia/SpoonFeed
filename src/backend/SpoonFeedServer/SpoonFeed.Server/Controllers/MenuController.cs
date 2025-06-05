@@ -96,13 +96,21 @@ public class MenuController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] MenuItemUpdateRequest request,
         CancellationToken ct = default)
     {
-        /*if (id != request.Id)
+        if (id != request.Id)
         {
             return BadRequest("Mismatched ID in URL and body.");
         }
         
-        var result = await _menuService.UpdateAsync(request, ct);
-        return result.ToActionResult();*/
+        var facilityIdResult = TryGetFacilityId(out var facilityId);
+        
+        if (facilityIdResult != null)
+        {
+            return facilityIdResult;
+        }
+
+        
+        var result = await _menuService.UpdateAsync(facilityId, request, ct);
+        return result.ToActionResult();
 
         throw new NotImplementedException();
     }
@@ -116,11 +124,22 @@ public class MenuController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
-        /*var result = await _menuService.DeleteAsync(id, ct);
-        return result.ToActionResult();*/
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var facilityIdResult = TryGetFacilityId(out var facilityId);
+        
+        if (facilityIdResult != null)
+        {
+            return facilityIdResult;
+        }
+        
+        var result = await _menuService.DeleteAsync(facilityId, id, ct);
+        
+        return result.ToActionResult();
     }
-    
     
     private IActionResult? TryGetFacilityId(out Guid customerId)
     {
