@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SpoonFeed.Application.DTOs.FoodFacility;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeedServer.Extensions;
 
 namespace SpoonFeedServer.Controllers;
 
 [ApiController]
-[Route("api/food-facility")]
+[Route("api/facility")]
 [Authorize(Roles = "FoodFacility")]
 public class FoodFacilityController : ControllerBase
 {
@@ -37,20 +38,109 @@ public class FoodFacilityController : ControllerBase
         CancellationToken ct
         )
     {
-        Guid facilityId;
-
-        try
+        var facilityIdRequest = TryGetFacilityId(out var foodFacilityId);
+        
+        if (facilityIdRequest != null)
         {
-            facilityId = _userContextService.GetUserId();
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized("User was not found.");
+            return facilityIdRequest;
         }
 
         var result = await _facilityService
-            .ConfirmPickupAsync(facilityId, orderId, orderPositions, ct);
+            .ConfirmPickupAsync(foodFacilityId, orderId, orderPositions, ct);
 
         return result.ToActionResult();
+    }
+
+    [HttpGet("info/get")]
+    [Authorize]
+    public async Task<IActionResult> GetFacilityInfo()
+    {
+        var facilityIdRequest = TryGetFacilityId(out var foodFacilityId);
+        
+        if (facilityIdRequest != null)
+        {
+            return facilityIdRequest;
+        }
+
+        var result = await _facilityService.GetFacilityInfoAsync(foodFacilityId);
+
+        return result.ToActionResult();
+    }
+    
+    [HttpPut("info/update")]
+    [Authorize]
+    public async Task<IActionResult> UpdateFacilityInfo([FromBody] UpdateFoodFacilityInfoRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var facilityIdRequest = TryGetFacilityId(out var foodFacilityId);
+        
+        if (facilityIdRequest != null)
+        {
+            return facilityIdRequest;
+        }
+
+        var result = await _facilityService.UpdateFacilityInfoAsync(foodFacilityId, request);
+
+        return result.ToActionResult();
+    }
+    
+    [HttpPut("working-hours/update")]
+    [Authorize]
+    public async Task<IActionResult> UpdateWorkingHours([FromBody] FacilityWorkingHoursUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var facilityIdRequest = TryGetFacilityId(out var foodFacilityId);
+        
+        if (facilityIdRequest != null)
+        {
+            return facilityIdRequest;
+        }
+
+        var result = await _facilityService.UpdateWorkingHoursAsync(foodFacilityId, dto);
+
+        return result.ToActionResult();
+    }
+    
+    [HttpGet("working-hours/get")]
+    [Authorize]
+    public async Task<IActionResult> GetWorkingHours()
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var facilityIdRequest = TryGetFacilityId(out var foodFacilityId);
+        
+        if (facilityIdRequest != null)
+        {
+            return facilityIdRequest;
+        }
+
+        var result = await _facilityService.GetWorkingHoursAsync(foodFacilityId);
+
+        return result.ToActionResult();
+    }
+    
+    private IActionResult? TryGetFacilityId(out Guid foodFacilityId)
+    {
+        try
+        {
+            foodFacilityId = _userContextService.GetUserId();
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            foodFacilityId = Guid.Empty;
+            return Unauthorized("Chain was not found.");
+        }
     }
 }

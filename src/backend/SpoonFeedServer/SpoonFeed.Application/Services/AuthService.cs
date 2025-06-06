@@ -22,7 +22,8 @@ public class AuthService : IAuthService
         SpoonFeedDbContext db, 
         ILogger<AuthService> logger, 
         IPasswordService passwordService, 
-        IJwtService jwtService, IMapper mapper)
+        IJwtService jwtService, 
+        IMapper mapper)
     {
         _db = db;
         _logger = logger;
@@ -43,11 +44,14 @@ public class AuthService : IAuthService
     /// </returns>
     public async Task<Result<AuthResponse>> LoginAsync(LoginRequest request, CancellationToken ct)
     {
+        _logger.LogInformation("Login attempt for {Email}", request.Email);
+        
         var user = await _db.UserIdentities
             .FirstOrDefaultAsync(x => x.Email == request.Email, ct);
 
         if (user == null)
         {
+            _logger.LogWarning("Login failed for {Email}: user not found", request.Email);
             return Result<AuthResponse>.FailureResult(
                 $"User with email {request.Email} does not exist.", ErrorType.NotFound);
         }
@@ -56,6 +60,8 @@ public class AuthService : IAuthService
 
         if (!isPasswordValid)
         {
+            _logger.LogWarning("Login failed for {Email}: invalid password", request.Email);
+            
             return Result<AuthResponse>.FailureResult("Invalid login attempt.", ErrorType.Unauthorized);
         }
         
@@ -71,18 +77,24 @@ public class AuthService : IAuthService
             role = Role.FoodFacility;
         
         if (role == null)
+        {
+            _logger.LogWarning("Login failed for {Email}: role not assigned", request.Email);
+            
             return Result<AuthResponse>.FailureResult("User role is not assigned.", ErrorType.Validation);
+        }
 
         try
         {
             var accessToken = _jwtService.GenerateJwtToken(
                 user.Id.ToString(), user.Email, role.ToString());
 
+            _logger.LogInformation("Login succeeded for {Email} with role {Role}", request.Email, role);
+            
             return Result<AuthResponse>.SuccessResult(new AuthResponse(accessToken));
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message);
+            _logger.LogError(e, "Internal error during login for {Email}", request.Email);
             
             return Result<AuthResponse>.FailureResult("An internal error occured", ErrorType.ServerError);
         }
@@ -99,11 +111,14 @@ public class AuthService : IAuthService
     /// </returns>
     public async Task<Result<AuthResponse>> RegisterUserIdentityAsync(RegisterUserRequest request, CancellationToken ct)
     {
+        _logger.LogInformation("Registration attempt for {Email} as {Role}", request.Email, request.UserType);
+        
         var userExists = await _db.UserIdentities
             .AnyAsync(u => u.Email == request.Email, cancellationToken: ct);
 
         if (userExists)
         {
+            _logger.LogWarning("Registration failed for {Email}: user already exists", request.Email);
             return Result<AuthResponse>.FailureResult($"User with email {request.Email} already exists.", ErrorType.Conflict);
         }
 
@@ -126,30 +141,18 @@ public class AuthService : IAuthService
             switch (request.UserType)
             {
                 case Role.Courier:
-                {
-                    await _db.Couriers.AddAsync(new Courier
-                    {
-                        UserIdentityId = newUser.Id
-                    }, ct);
+                    await _db.Couriers.AddAsync(new Courier { UserIdentityId = newUser.Id }, ct);
                     break;
-                }
                 case Role.Customer:
-                {
-                    await _db.Customers.AddAsync(new Customer
-                    {
-                        UserIdentityId = newUser.Id
-                    }, ct);
+                    await _db.Customers.AddAsync(new Customer { UserIdentityId = newUser.Id }, ct);
                     break;
-                }
                 case Role.FoodChain:
-                {
                     await _db.FoodChains.AddAsync(new FoodChain
                     {
                         UserIdentityId = newUser.Id,
                         Status = FoodChainStatus.PendingApproval
                     }, ct);
                     break;
-                }
             }
             
             await _db.SaveChangesAsync(ct);
@@ -160,11 +163,12 @@ public class AuthService : IAuthService
                 newUser.Email,
                 request.UserType.ToString());
 
+            _logger.LogInformation("Registration succeeded for {Email} as {Role}", request.Email, request.UserType);
             return Result<AuthResponse>.SuccessResult(new AuthResponse(token));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Internal error during registration for {Email}", request.Email);
             
             return Result<AuthResponse>.FailureResult(
                 "Internal error occured while trying to register a user. Please, try later", ErrorType.ServerError);
@@ -173,16 +177,20 @@ public class AuthService : IAuthService
 
     public async Task<Result<FoodFacilityRegisterResponse>> RegisterFoodFacilityAsync(Guid foodChainId, FoodFacilityRegisterRequest request, CancellationToken ct)
     {
+        _logger.LogInformation("Food facility registration attempt for chain {ChainId} with email {Email}", foodChainId, request.Email);
+        
         var foodChain = await _db.FoodChains
             .FirstOrDefaultAsync(fc => fc.UserIdentityId == foodChainId, cancellationToken: ct);
 
         if (foodChain == null)
         {
+            _logger.LogWarning("Food facility registration failed: food chain {ChainId} not found", foodChainId);
             return Result<FoodFacilityRegisterResponse>.FailureResult("Food chain not found", ErrorType.NotFound);
         }
 
         if (foodChain.Status != FoodChainStatus.Private && foodChain.Status != FoodChainStatus.Public)
         {
+            _logger.LogWarning("Food facility registration failed: chain {ChainId} has status {Status}", foodChainId, foodChain.Status);
             return Result<FoodFacilityRegisterResponse>.FailureResult("You are not allowed to create a food facility", ErrorType.Forbidden);
         }
 
@@ -203,7 +211,6 @@ public class AuthService : IAuthService
             UserIdentityId = foodFacilityIdentity.Id,
             Address = _mapper.Map<Address>(request.AddressDto),
             Name = request.Name,
-            WorkingHours = request.WorkingHours ?? new WorkingHours(),
             FoodChainId = foodChainId 
         };
 
@@ -222,16 +229,15 @@ public class AuthService : IAuthService
                 Password = password
             };
 
+            _logger.LogInformation("Food facility {FacilityName} successfully registered under chain {ChainId}", request.Name, foodChainId);
             return Result<FoodFacilityRegisterResponse>.SuccessResult(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Internal error during food facility registration for email {Email}", request.Email);
             
             return Result<FoodFacilityRegisterResponse>.FailureResult(
                 "Internal error occured while trying to register a food facility. Please, try later", ErrorType.ServerError);
         }
     }
-
-   
 }

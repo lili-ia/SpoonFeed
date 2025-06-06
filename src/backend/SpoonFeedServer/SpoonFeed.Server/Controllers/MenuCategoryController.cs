@@ -40,7 +40,6 @@ public class MenuCategoryController : ControllerBase
         return result.ToActionResult();
     }
     
-    
     private IActionResult? TryGetFacilityId(out Guid foodFacilityId)
     {
         try

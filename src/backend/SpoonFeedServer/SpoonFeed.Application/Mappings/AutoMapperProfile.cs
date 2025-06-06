@@ -13,5 +13,6 @@ public class AutoMapperProfile : Profile
         CreateMap<CreateOrderDto, Order>();
         CreateMap<CreateOrderPositionDto, OrderPosition>();
         CreateMap<AddressDto, Address>();
+        CreateMap<Address, AddressDto>();
     }
 }

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using SpoonFeed.Domain.Models;
 using SpoonFeed.Persistence.Converters;
@@ -35,6 +36,8 @@ public class SpoonFeedDbContext : DbContext
     public DbSet<Transaction> Transactions { get; set; }
     
     public DbSet<UserDocument> UserDocuments { get; set; }
+    
+    public DbSet<FacilityWorkingHour> WorkingHours { get; set; } 
 
     public SpoonFeedDbContext(DbContextOptions<SpoonFeedDbContext> options) : base(options)
     {
@@ -42,6 +45,40 @@ public class SpoonFeedDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<UserIdentity>(e =>
+        {
+            e.HasOne(u => u.ProfilePic)
+                .WithOne()
+                .HasForeignKey<UserIdentity>(u => u.ProfilePicId);
+        });
+
+        modelBuilder.Entity<FacilityWorkingHour>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasKey(e => e.Id);               
+            entity.HasOne(e => e.FoodFacility)
+                .WithMany(f => f.WorkingHours)
+                .HasForeignKey(e => e.FoodFacilityId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            var timeFormat = "HH\\:mm";            // 09:30
+
+            entity.Property(x => x.OpenTime)
+                .HasConversion(
+                    t => t.ToString(timeFormat),
+                    s => TimeOnly.ParseExact(s, timeFormat))
+                .HasMaxLength(5)                    
+                .IsRequired();
+
+            entity.Property(x => x.CloseTime)
+                .HasConversion(
+                    t => t.ToString(timeFormat),
+                    s => TimeOnly.ParseExact(s, timeFormat))
+                .HasMaxLength(5)
+                .IsRequired();
+        });
+        
         modelBuilder.Entity<Courier>(e =>
         {
             e.HasKey(c => c.UserIdentityId);
@@ -100,8 +137,6 @@ public class SpoonFeedDbContext : DbContext
         modelBuilder.Entity<FoodFacility>(e =>
         {
             e.OwnsOne(ff => ff.Address);
-            
-            e.OwnsOne(ff => ff.WorkingHours);
             
             e.HasKey(ff => ff.UserIdentityId);
 

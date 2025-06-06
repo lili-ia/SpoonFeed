@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SpoonFeed.Application.Interfaces;
 using SpoonFeed.Application.Mappings;
 using SpoonFeed.Application.Services;
+using SpoonFeed.Infrastructure.Converters;
 using SpoonFeed.Infrastructure.Services;
 using SpoonFeed.Persistence;
 using SpoonFeedServer.Extensions;
@@ -35,6 +36,7 @@ builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<IFoodFacilityService, FoodFacilityService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
@@ -62,6 +64,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
 });
 builder.Services.AddLogging();
 

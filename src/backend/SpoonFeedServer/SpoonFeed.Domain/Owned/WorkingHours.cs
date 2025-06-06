@@ -9,17 +9,23 @@ namespace SpoonFeed.Domain.Owned;
 [Owned]
 public class WorkingHours : IValidatableObject
 {
+    [Required]
+    public DayOfWeek DayOfWeek { get; set; }
+    
+    [Required]
+    public bool IsOpen { get; set; }
+    
     [Required] 
-    public TimeOnly Start { get; set; } = TimeOnly.MinValue;
+    public TimeOnly OpenTime { get; set; } = TimeOnly.MinValue;
 
     [Required]
-    public TimeOnly End { get; set; } = TimeOnly.MaxValue;
+    public TimeOnly CloseTime { get; set; } = TimeOnly.MaxValue;
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Start >= End)
+        if (OpenTime >= CloseTime)
         {
-            yield return new ValidationResult("Start time must be earlier than end time.", new[] { nameof(Start), nameof(End) });
+            yield return new ValidationResult("Start time must be earlier than end time.", new[] { nameof(OpenTime), nameof(CloseTime) });
         }
     }
 }

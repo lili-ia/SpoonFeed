@@ -48,5 +48,12 @@ public class UserIdentity : BaseEntity
     [Required(ErrorMessage = "PhoneNumber is required.")]
     public string PhoneNumber { get; set; } = string.Empty;
     
+    public Guid? ProfilePicId { get; set; }
+    
+    /// <summary>
+    /// Represents the user's main profile picture.
+    /// </summary>
+    public Image? ProfilePic { get; set; }
+    
     public virtual IList<UserDocument> Documents { get; set; } = [];
 }

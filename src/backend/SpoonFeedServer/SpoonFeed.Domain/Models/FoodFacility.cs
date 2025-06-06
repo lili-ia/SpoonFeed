@@ -32,13 +32,7 @@ public class FoodFacility
     [Required(ErrorMessage = "Name is required.")]
     [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters.")]
     public string Name { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Represents a range of food facility's working hours.
-    /// </summary>
-    [Required(ErrorMessage = "WorkingHours are required.")]
-    public WorkingHours WorkingHours { get; set; } = null!;
-
+    
     /// <summary>
     /// Represents the current status of the food facility's ability to accept orders.
     /// </summary>
@@ -68,4 +62,9 @@ public class FoodFacility
     public virtual IList<FoodFacilityReview> FoodFacilityReviews { get; set; } = [];
     
     public virtual IList<MenuItemCategory> MenuItemCategories { get; set; } = [];
+    
+    /// <summary>
+    /// Represents a range of food facility's working hours.
+    /// </summary>
+    public virtual IList<FacilityWorkingHour> WorkingHours { get; set; } = [];
 }
